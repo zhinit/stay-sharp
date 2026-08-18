@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "staysharp"
+version = "0.1.0"
+description = "Practice handcoding problems while your AI coding agent works"
+requires-python = ">=3.10"
+dependencies = ["claude-agent-sdk"]
+
+[project.scripts]
+staysharp = "staysharp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src_sdk"]

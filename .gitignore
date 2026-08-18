@@ -1,0 +1,22 @@
+# Source documents
+raw/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.venv/
+.pytest_cache/
+
+# Rust
+target/
+
+# Node/JS/TS
+node_modules/
+dist/
+
+# OS
+.DS_Store
