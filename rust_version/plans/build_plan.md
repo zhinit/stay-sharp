@@ -1,12 +1,12 @@
 # Build Plan
 
 ## Phase 1: Project setup
-- [ ] Install Rust toolchain (rustup)
-- [ ] `cargo init` inside rust_version/
-- [ ] Build and run hello world
+- [x] Install Rust toolchain (rustup)
+- [x] `cargo init` inside rust_version/
+- [x] Build and run hello world
 
 ## Phase 2: CLI skeleton
-- [ ] Accept user input from terminal (single line)
+- [x] Accept user input from terminal (single line)
 - [ ] Multi-line input (Shift+Enter for newline, Enter to submit)
 - [ ] Session setup questions (mode, topic, difficulty)
 - [ ] Main loop structure (question > answer > grade > clarify > repeat)
