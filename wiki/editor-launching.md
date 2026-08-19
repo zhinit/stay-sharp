@@ -47,8 +47,6 @@ Git extends the standard convention with tool-specific overrides (source: baeldu
 
 For interactive rebase, `GIT_SEQUENCE_EDITOR` and `sequence.editor` form a parallel chain (source: baeldung-git-editors-2026.md).
 
-This pattern (tool-specific override > `VISUAL` > `EDITOR` > default) is common across CLI tools. Many tools implement only the `VISUAL` > `EDITOR` > default subset.
-
 ## Platform file/URL openers
 
 Opening a file or URL with the user's default application uses a different command per platform:

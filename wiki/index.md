@@ -14,3 +14,19 @@
 - [[editor-launching]] -- EDITOR/VISUAL environment variable convention, precedence chains, shell interpretation, foreground requirement, and platform file openers.
 - [[xdg-base-directory]] -- XDG Base Directory Specification: all environment variables, defaults, state vs. data vs. cache, directory creation rules.
 - [[windows-known-folders]] -- Windows AppData structure: Roaming, Local, LocalLow folders, environment variables, and mapping to XDG.
+- [[rust-ownership]] -- Ownership rules, move semantics, Copy trait, references, borrowing, slices.
+- [[rust-type-system]] -- Scalar/compound types, structs, enums, generics, traits, lifetimes, trait objects.
+- [[rust-pattern-matching]] -- match, if let, let...else, while let, pattern syntax, refutability, destructuring, match guards.
+- [[rust-error-handling]] -- panic!, Result, Option, the ? operator, error propagation, From trait, when to panic vs return Result.
+- [[rust-collections]] -- Vec, String, HashMap, closures (Fn traits), iterators (Iterator trait, adaptors).
+- [[rust-modules]] -- Packages, crates, modules, paths, visibility, use keyword, file layout.
+- [[rust-async]] -- Future trait, async/await, async blocks, concurrency (join!, select), streams, tasks vs threads.
+- [[rust-testing]] -- #[test], assert macros, should_panic, test filtering, unit vs integration tests.
+- [[rust-cargo]] -- Cargo.toml, build/run/check, release profiles, publishing, workspaces, cargo install.
+- [[tokio]] -- Async runtime, #[tokio::main], spawn, channels (mpsc/oneshot/broadcast/watch), select!, async I/O, feature flags.
+- [[reqwest]] -- HTTP client, async and blocking APIs, request/response builders, JSON integration, TLS, proxy, timeouts.
+- [[serde]] -- Serialize/Deserialize traits, derive macros, container/variant/field attributes, data model, custom implementations.
+- [[serde-json]] -- Value enum, typed/untyped deserialization, json! macro, streaming, serialization functions.
+- [[crossterm]] -- Terminal manipulation, raw mode, event reading, keyboard input, styling, alternate screen, command API.
+- [[terminal-keyboard-encoding]] -- How terminals encode keypresses as bytes, the Enter/Shift+Enter and Tab/Ctrl+I collisions, Escape ambiguity, modifyOtherKeys and fixterms history.
+- [[kitty-keyboard-protocol]] -- CSI u key encoding, progressive enhancement flags, push/pop stack, detection, per-terminal and multiplexer support, fallback guidance.

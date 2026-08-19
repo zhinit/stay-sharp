@@ -82,10 +82,6 @@ Define configurable options in `plugin.json` under `userConfig`. Values are prom
 
 Start with standalone, convert to plugin when ready to share (source: claude-code-plugins-create-2026.md).
 
-## Relevance to StaySharp
-
-A plugin is the right distribution wrapper if StaySharp is meant to be installed by others in one step. It can bundle a CLI executable (in `bin/`), hooks (to trigger on session events), skills, agents, and MCP servers together. The `userConfig` feature could prompt for preferences at install time. The plugin itself does not add new runtime capabilities beyond what [[claude-code-hooks]], [[claude-code-skills]], and [[claude-agent-sdk]] provide individually.
-
 ## Related pages
 
 [[claude-code-hooks]] | [[claude-code-skills]] | [[claude-agent-sdk]] | [[claude-code-headless]]

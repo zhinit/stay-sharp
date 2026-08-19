@@ -62,8 +62,8 @@ The `hooks` key in `settings.json` is an object with three levels of nesting (so
 ```
 
 1. **Event key** -- a hook event name (e.g. `"PreToolUse"`, `"Stop"`, `"SessionStart"`).
-2. **Matcher group array** -- each element has a `"matcher"` string and a `"hooks"` array. The matcher filters when the hooks fire (see [[#Matchers]]).
-3. **Hook handler array** -- each element has a required `"type"` field plus type-specific fields (see [[#Handler types]]). All matching hooks run in parallel. Duplicate handlers across settings files run once; plugin/skill copies stay separate.
+2. **Matcher group array** -- each element has a `"matcher"` string and a `"hooks"` array. The matcher filters when the hooks fire (see Matchers below).
+3. **Hook handler array** -- each element has a required `"type"` field plus type-specific fields (see Handler types above). All matching hooks run in parallel. Duplicate handlers across settings files run once; plugin/skill copies stay separate.
 
 ### Top-level settings keys
 
@@ -171,16 +171,6 @@ SDK hooks support the same events as CLI hooks. `PostToolBatch` is TypeScript-on
 
 `${CLAUDE_PROJECT_DIR}` (project root), `${CLAUDE_PLUGIN_ROOT}` (plugin install dir), `${CLAUDE_PLUGIN_DATA}` (plugin persistent data dir). Also exported as environment variables (source: claude-code-hooks-reference-2026.md).
 
-## Relevance to StaySharp
-
-There is no "agent is busy" or "long task started" event. The closest signals are:
-
-- `Stop` fires when Claude finishes a turn (the user is needed again).
-- `SubagentStart`/`SubagentStop` and `TaskCreated`/`TaskCompleted` fire around delegated work.
-- A `command` hook with `async: true` can launch an external process without blocking the session.
-- `asyncRewake: true` can wake Claude when the external process exits with code 2.
-- `Notification` fires when Claude is waiting for input or permission, useful for knowing when to stop practicing.
-
 ## Related pages
 
-[[claude-code-plugins]] | [[claude-code-skills]] | [[claude-agent-sdk]] | [[claude-code-headless]]
+[[claude-code-plugins]] | [[claude-code-skills]] | [[claude-agent-sdk]] | [[claude-code-headless]] | [[desktop-notifications]]

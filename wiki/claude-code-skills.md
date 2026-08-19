@@ -51,10 +51,6 @@ Claude Code includes built-in skills: `/doctor`, `/code-review`, `/batch`, `/deb
 
 Claude Code watches skill directories for file changes. Adding, editing, or removing a skill under `~/.claude/skills/` or the project `.claude/skills/` is picked up within the current session without a restart (source: claude-code-skills-reference-2026.md).
 
-## Relevance to StaySharp
-
-Skills execute within the active Claude Code session. Since StaySharp needs to run while the session is occupied with other work, a skill alone cannot serve as the delivery mechanism. A skill could be useful as a manual trigger (e.g. `/practice` to start exercises when the session is idle), but it cannot run concurrently with the agent's main task.
-
 ## Related pages
 
 [[claude-code-hooks]] | [[claude-code-plugins]] | [[claude-agent-sdk]] | [[claude-code-headless]]

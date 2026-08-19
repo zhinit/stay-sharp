@@ -132,6 +132,7 @@ cache_creation.ephemeral_1h_input_tokens  int
 
 Cache read tokens are billed at ~10% of the base input price. Cache creation
 tokens are split between 5-minute and 1-hour ephemeral tiers.
+(source: medium-session-file-format-2026.md)
 
 ## Subagent tracking
 

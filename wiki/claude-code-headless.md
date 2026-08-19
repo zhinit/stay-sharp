@@ -54,10 +54,6 @@ claude -p "Fix the bug" --allowedTools "Read,Edit,Bash"
 
 If Claude starts a background Bash task during a `-p` run (e.g. a dev server), the shell is terminated about 5 seconds after the final result. Background subagents and workflows are waited on (capped at 10 minutes by default, configurable via `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`) (source: claude-code-headless-2026.md).
 
-## Relevance to StaySharp
-
-`claude -p` provides a lightweight way to generate exercises without the full Agent SDK. A script or hook could call `claude -p "generate a coding exercise about <topic> based on the files in this repo" --bare --allowedTools "Read,Grep,Glob" --output-format json` and display the result. This avoids the SDK setup overhead but lacks multi-turn conversation, streaming callbacks, and in-process tool customization.
-
 ## Related pages
 
 [[claude-agent-sdk]] | [[claude-code-hooks]] | [[claude-code-plugins]]

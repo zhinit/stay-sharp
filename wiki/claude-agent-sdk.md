@@ -328,10 +328,6 @@ For a locked-down agent, pair `allowedTools` with `permissionMode: "dontAsk"`. L
 
 Third parties may use "Claude Agent" or "{YourAgentName} Powered by Claude" but not "Claude Code" or Claude Code branded visuals (source: claude-agent-sdk-overview-2026.md).
 
-## Relevance to StaySharp
-
-The Agent SDK is the mechanism for building a standalone terminal CLI that uses Claude to generate context-aware exercises. It can read the repo's git state via Bash/Read/Grep, understand what the user is building, and produce relevant practice problems. It runs as an independent process, so it operates in a separate terminal pane while Claude Code is busy in another. For a simpler approach without Claude intelligence, the CLI as a subprocess (`claude -p`) can also generate exercises. See [[claude-code-headless]].
-
 ## Related pages
 
 [[claude-code-hooks]] | [[claude-code-plugins]] | [[claude-code-skills]] | [[claude-code-headless]]

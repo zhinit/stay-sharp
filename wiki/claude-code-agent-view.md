@@ -137,7 +137,8 @@ Background sessions automatically move into isolated git worktrees under
 conflicting on the same files. (source: claude-code-agent-view-2026.md)
 
 Claude commits and pushes changes when finishing, and opens pull requests when
-appropriate. Never force-pushes or merges without explicit instruction.
+tasks call for them. Never force-pushes or merges without explicit instruction.
+(source: claude-code-agent-view-2026.md)
 
 To disable worktree isolation, set in `.claude/settings.json`
 (source: claude-code-agent-view-2026.md):
