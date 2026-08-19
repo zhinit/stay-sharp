@@ -8,6 +8,15 @@
 ## Phase 2: CLI skeleton
 - [x] Accept user input from terminal (single line)
 - [ ] Multi-line input (Shift+Enter for newline, Enter to submit)
+  - [x] Raw mode on/off, read single key events
+  - [x] Kitty keyboard protocol: push/pop DISAMBIGUATE_ESCAPE_CODES (see wiki/kitty-keyboard-protocol.md)
+  - [x] Input loop: chars accumulate, Enter submits, Shift+Enter inserts newline
+  - [ ] Backspace
+  - [ ] Cursor movement: Left/Right/Up/Down
+  - [ ] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
+  - [ ] Ctrl+J newline fallback for terminals without kitty protocol
+  - [ ] Only push enhancement flags when supports_keyboard_enhancement() is true
+  - [ ] Filter to KeyEventKind::Press (Windows reports key releases too)
 - [ ] Session setup questions (mode, topic, difficulty)
 - [ ] Main loop structure (question > answer > grade > clarify > repeat)
 
