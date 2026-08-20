@@ -16,7 +16,7 @@
   - [x] Only push enhancement flags when supports_keyboard_enhancement() is true
   - [x] Filter to KeyEventKind::Press (Windows reports key releases too)
 - [x] Session setup questions (mode, topic, difficulty)
-- [ ] Main loop structure (question > answer > grade > clarify > repeat)
+- [x] Main loop structure (question > answer > grade > clarify > repeat)
 
 ## Phase 3: LLM integration
 - [ ] Read API key from environment variable

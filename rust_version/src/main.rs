@@ -103,5 +103,31 @@ fn main() -> std::io::Result<()> {
     let difficulty: String = get_user_input(question3)?;
 
     println!("{}\n{}\n{}\n", question_mode, topics, difficulty);
+
+    loop {
+        // generate a question based on initial responses
+        let curr_question: &str = "\nWhat is the difference between &str and String in rust?\n> ";
+
+        // send that question to the user and get their response
+        let answer = get_user_input(curr_question)?;
+        if answer == "exit" {
+            break;
+        }
+
+        // grade user and see if they have any clarifying questions or want to coninue
+        println!("You answered: {}", answer);
+        println!("Grade: A. You are correct because x y and z");
+        
+        loop {
+            let follow_up_response = get_user_input(
+                "Do you have any clarifying questions? If not \"n\" to get the next question"
+            )?;
+            if follow_up_response == "n" {
+                break;
+            }
+            println!("You answered: {}", follow_up_response);
+        }
+    }
+
     Ok(())
 }
