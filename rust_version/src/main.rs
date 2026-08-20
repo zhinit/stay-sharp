@@ -137,13 +137,18 @@ fn main() -> std::io::Result<()> {
     let topics: String = get_user_input(question2)?;
     let difficulty: String = get_user_input(question3)?;
 
-    println!("{}\n{}\n{}\n", question_mode, topics, difficulty);
+    let initial_prompt = format!(
+        "Ask me a coding question where the type of question will be {}. \
+        The topic should be related to {}. \
+        The level of difficulty should be {}. \
+        This answer to this should only be a few lines of code, \
+        or a one liner if appropriate.",
+        question_mode, topics, difficulty
+    );
 
     loop {
         // generate a question based on initial responses
-        let curr_question = get_chat_response(
-            &api_url, &api_key, &model, "Ask me a simple coding question about rust"
-        );
+        let curr_question = get_chat_response(&api_url, &api_key, &model, &initial_prompt);
 
         // send that question to the user and get their response
         let answer = get_user_input(&curr_question)?;
@@ -152,8 +157,18 @@ fn main() -> std::io::Result<()> {
         }
 
         // grade user and see if they have any clarifying questions or want to coninue
-        println!("You answered: {}", answer);
-        println!("Grade: A. You are correct because x y and z");
+        let grade_prompt = format!(
+            "Here is a question: {}. \
+            Here is the response to that question: {}.\
+            Can you please grade this and give feedback. \
+            What did they do right? What did they do Wrong? What topics did they not understand? \
+            Respond to the person who answered the question in a friendly tone. \
+            Please be brief.",
+            curr_question, answer
+        );
+
+        let chat_feedback = get_chat_response(&api_url, &api_key, &model, &grade_prompt);
+        println!("{}", chat_feedback);
         
         loop {
             let follow_up_response = get_user_input(

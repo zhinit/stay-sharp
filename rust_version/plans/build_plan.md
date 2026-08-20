@@ -21,8 +21,8 @@
 ## Phase 3: LLM integration
 - [x] Read API key from environment variable
 - [x] Make an API call to an LLM provider and print the response
-- [ ] Generate a question based on session setup
-- [ ] Grade a user's answer and give feedback
+- [x] Generate a question based on session setup
+- [x] Grade a user's answer and give feedback
 - [ ] Clarifying question conversation
 - [ ] Claude API support (/v1/messages format)
 
