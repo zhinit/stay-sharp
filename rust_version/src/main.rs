@@ -151,8 +151,8 @@ fn main() -> std::io::Result<()> {
         let curr_question = get_chat_response(&api_url, &api_key, &model, &initial_prompt);
 
         // send that question to the user and get their response
-        let answer = get_user_input(&curr_question)?;
-        if answer == "exit" {
+        let curr_answer = get_user_input(&curr_question)?;
+        if curr_answer == "exit" {
             break;
         }
 
@@ -163,21 +163,33 @@ fn main() -> std::io::Result<()> {
             Can you please grade this and give feedback. \
             What did they do right? What did they do Wrong? What topics did they not understand? \
             Respond to the person who answered the question in a friendly tone. \
-            Please be brief.",
-            curr_question, answer
+            Please be brief. The response should be consise and to the point. The shorter the better.",
+            curr_question, curr_answer
         );
 
-        let chat_feedback = get_chat_response(&api_url, &api_key, &model, &grade_prompt);
-        println!("{}", chat_feedback);
+        let curr_grade = get_chat_response(&api_url, &api_key, &model, &grade_prompt);
+        println!("{}", curr_grade);
         
         loop {
-            let follow_up_response = get_user_input(
-                "Do you have any clarifying questions? If not \"n\" to get the next question"
+            let curr_follow_up = get_user_input(
+                "Do you have any clarifying questions? If not type \"n\" to get the next question"
             )?;
-            if follow_up_response == "n" {
+            if curr_follow_up == "n" {
                 break;
             }
-            println!("You answered: {}", follow_up_response);
+
+            let follow_up_prompt = format!(
+                "Here is a question given to a user: {}. \
+                Here is the response to that question: {}. \
+                This is the grade that was given: {}. \
+                This is a follow up question they have: {} \
+                Please respond to the user's follow up question.
+                Respond in a friendly tone. Please be brief.
+                The response should be consise and to the point. The shorter the better.",
+                curr_question, curr_answer, curr_grade, curr_follow_up 
+            );
+            let chat_follow_up_response = get_chat_response(&api_url, &api_key, &model, &follow_up_prompt);
+            println!("{}", chat_follow_up_response);
         }
     }
 
