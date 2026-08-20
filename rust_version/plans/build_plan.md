@@ -7,16 +7,14 @@
 
 ## Phase 2: CLI skeleton
 - [x] Accept user input from terminal (single line)
-- [ ] Multi-line input (Shift+Enter for newline, Enter to submit)
+- [x] Multi-line input (Shift+Enter for newline, Enter to submit)
   - [x] Raw mode on/off, read single key events
   - [x] Kitty keyboard protocol: push/pop DISAMBIGUATE_ESCAPE_CODES (see wiki/kitty-keyboard-protocol.md)
   - [x] Input loop: chars accumulate, Enter submits, Shift+Enter inserts newline
-  - [ ] Backspace
-  - [ ] Cursor movement: Left/Right/Up/Down
-  - [ ] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
-  - [ ] Ctrl+J newline fallback for terminals without kitty protocol
-  - [ ] Only push enhancement flags when supports_keyboard_enhancement() is true
-  - [ ] Filter to KeyEventKind::Press (Windows reports key releases too)
+  - [x] Backspace
+  - [x] Cursor movement: Left/Right (Up/Down deferred until multi-line redraw is built)
+  - [x] Only push enhancement flags when supports_keyboard_enhancement() is true
+  - [x] Filter to KeyEventKind::Press (Windows reports key releases too)
 - [ ] Session setup questions (mode, topic, difficulty)
 - [ ] Main loop structure (question > answer > grade > clarify > repeat)
 
@@ -28,6 +26,9 @@
 - [ ] Clarifying question conversation
 
 ## Phase 4: Polish
+- [ ] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)
+- [ ] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
+- [ ] Ctrl+J newline fallback for terminals without kitty protocol
 - [ ] Error handling (bad API key, network issues, etc.)
 - [ ] Clean exit (Ctrl+C handling)
 - [ ] README with install instructions
