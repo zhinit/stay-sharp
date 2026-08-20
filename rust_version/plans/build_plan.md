@@ -24,15 +24,15 @@
 - [x] Generate a question based on session setup
 - [x] Grade a user's answer and give feedback
 - [x] Clarifying question conversation
-- [ ] Claude API support (/v1/messages format)
 
 ## Phase 4: Polish
+- [ ] Conversation history (messages array) for multi-turn follow-ups
+- [ ] Claude API support (/v1/messages format)
+- [ ] Clean exit (Ctrl+C handling)
 - [ ] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)
 - [ ] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
 - [ ] Ctrl+J newline fallback for terminals without kitty protocol
-- [ ] Conversation history (messages array) for multi-turn follow-ups
 - [ ] Error handling (bad API key, network issues, etc.)
-- [ ] Clean exit (Ctrl+C handling)
 - [ ] README with install instructions
 
 ## Phase 5: Distribution
