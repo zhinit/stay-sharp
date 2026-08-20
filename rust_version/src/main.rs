@@ -16,7 +16,9 @@ fn redraw_from(input: &str, cursor:usize) {
     stdout().flush().unwrap();
 }
 
-fn main() -> std::io::Result<()> {
+fn get_user_input(question: &str) -> std::io::Result<String> {
+    println!("{}", question);
+
     let kitty = crossterm::terminal::supports_keyboard_enhancement().unwrap_or(false);
 
     enable_raw_mode()?;
@@ -88,6 +90,18 @@ fn main() -> std::io::Result<()> {
     disable_raw_mode()?;
     
     println!();
-    println!("You typed: {}", input);
+    return Ok(input);
+}
+
+fn main() -> std::io::Result<()> {
+    let question1: &str = "Do you want to write code, read code, or keep it conceptual?";
+    let question2: &str = "What topic(s) do you want to cover?";
+    let question3: &str = "How difficult do you want the questions to be (ie easy, medium, hard)?";
+
+    let question_mode: String = get_user_input(question1)?;
+    let topics: String = get_user_input(question2)?;
+    let difficulty: String = get_user_input(question3)?;
+
+    println!("{}\n{}\n{}\n", question_mode, topics, difficulty);
     Ok(())
 }

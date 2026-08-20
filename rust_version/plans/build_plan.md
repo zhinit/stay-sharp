@@ -15,7 +15,7 @@
   - [x] Cursor movement: Left/Right (Up/Down deferred until multi-line redraw is built)
   - [x] Only push enhancement flags when supports_keyboard_enhancement() is true
   - [x] Filter to KeyEventKind::Press (Windows reports key releases too)
-- [ ] Session setup questions (mode, topic, difficulty)
+- [x] Session setup questions (mode, topic, difficulty)
 - [ ] Main loop structure (question > answer > grade > clarify > repeat)
 
 ## Phase 3: LLM integration
