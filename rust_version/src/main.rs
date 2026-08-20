@@ -90,10 +90,45 @@ fn get_user_input(question: &str) -> std::io::Result<String> {
     disable_raw_mode()?;
     
     println!();
-    return Ok(input);
+    Ok(input)
+}
+
+fn get_chat_response(api_url: &str, api_key: &str, model: &str, prompt: &str) -> String {
+    let client = reqwest::blocking::Client::new();
+    let body = serde_json::json!({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+    });
+
+    let response = client.post(format!("{}/v1/chat/completions", api_url))
+        .header("Authorization", format!("Bearer {}", api_key))
+        .json(&body)
+        .send()
+        .expect("Failed to send request");
+
+    let json: serde_json::Value = response.json()
+        .expect("Failed to parse response");
+
+    json["choices"][0]["message"]["content"]
+        .as_str()
+        .unwrap_or("No response")
+        .to_string()
 }
 
 fn main() -> std::io::Result<()> {
+
+    dotenvy::dotenv().ok();
+    
+    let api_url = std::env::var("STAYSHARP_API_URL")
+        .expect("Error: STAYSHARP_API_URL must be set");
+
+    let api_key = std::env::var("STAYSHARP_API_KEY")
+        .expect("Error: STAYSHARP_API_KEY must be set");
+
+    let model = std::env::var("STAYSHARP_MODEL")
+        .expect("Error: STAYSHARP_MODEL must be set");
+
+
     let question1: &str = "Do you want to write code, read code, or keep it conceptual?";
     let question2: &str = "What topic(s) do you want to cover?";
     let question3: &str = "How difficult do you want the questions to be (ie easy, medium, hard)?";
@@ -106,10 +141,12 @@ fn main() -> std::io::Result<()> {
 
     loop {
         // generate a question based on initial responses
-        let curr_question: &str = "\nWhat is the difference between &str and String in rust?\n> ";
+        let curr_question = get_chat_response(
+            &api_url, &api_key, &model, "Ask me a simple coding question about rust"
+        );
 
         // send that question to the user and get their response
-        let answer = get_user_input(curr_question)?;
+        let answer = get_user_input(&curr_question)?;
         if answer == "exit" {
             break;
         }

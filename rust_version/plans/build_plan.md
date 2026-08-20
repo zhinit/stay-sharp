@@ -19,11 +19,12 @@
 - [x] Main loop structure (question > answer > grade > clarify > repeat)
 
 ## Phase 3: LLM integration
-- [ ] Read API key from environment variable
-- [ ] Make an API call to an LLM provider and print the response
+- [x] Read API key from environment variable
+- [x] Make an API call to an LLM provider and print the response
 - [ ] Generate a question based on session setup
 - [ ] Grade a user's answer and give feedback
 - [ ] Clarifying question conversation
+- [ ] Claude API support (/v1/messages format)
 
 ## Phase 4: Polish
 - [ ] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)

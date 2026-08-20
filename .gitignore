@@ -18,5 +18,8 @@ target/
 node_modules/
 dist/
 
+# Environment
+.env
+
 # OS
 .DS_Store
