@@ -93,11 +93,21 @@ fn get_user_input(question: &str) -> std::io::Result<String> {
     Ok(input)
 }
 
-fn get_chat_response(api_url: &str, api_key: &str, model: &str, prompt: &str) -> String {
-    let client = reqwest::blocking::Client::new();
+fn get_chat_response(
+    api_url: &str, 
+    api_key: &str, 
+    model: &str, 
+    messages: &Vec<serde_json::Value>
+) -> String {
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(120))
+        .build()
+        .expect("Failed to build HTTP client");
+
     let body = serde_json::json!({
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
+        "reasoning": {"effort": "none"},
     });
 
     let response = client.post(format!("{}/v1/chat/completions", api_url))
@@ -136,6 +146,7 @@ fn main() -> std::io::Result<()> {
     let question_mode: String = get_user_input(question1)?;
     let topics: String = get_user_input(question2)?;
     let difficulty: String = get_user_input(question3)?;
+    println!("--------------------");
 
     let initial_prompt = format!(
         "Ask me a coding question where the type of question will be {}. \
@@ -146,9 +157,12 @@ fn main() -> std::io::Result<()> {
         question_mode, topics, difficulty
     );
 
+    let mut messages: Vec<serde_json::Value> = Vec::new();
+    messages.push(serde_json::json!({"role": "user", "content": initial_prompt}));
+
     loop {
         // generate a question based on initial responses
-        let curr_question = get_chat_response(&api_url, &api_key, &model, &initial_prompt);
+        let curr_question = get_chat_response(&api_url, &api_key, &model, &messages);
 
         // send that question to the user and get their response
         let curr_answer = get_user_input(&curr_question)?;
@@ -158,16 +172,17 @@ fn main() -> std::io::Result<()> {
 
         // grade user and see if they have any clarifying questions or want to coninue
         let grade_prompt = format!(
-            "Here is a question: {}. \
-            Here is the response to that question: {}.\
-            Can you please grade this and give feedback. \
+            "Can you please grade this and give feedback. \
             What did they do right? What did they do Wrong? What topics did they not understand? \
             Respond to the person who answered the question in a friendly tone. \
             Please be brief. The response should be consise and to the point. The shorter the better.",
-            curr_question, curr_answer
         );
 
-        let curr_grade = get_chat_response(&api_url, &api_key, &model, &grade_prompt);
+        messages.push(serde_json::json!({"role": "assistant", "content": curr_question}));
+        messages.push(serde_json::json!({"role": "user", "content": curr_answer}));
+        messages.push(serde_json::json!({"role": "user", "content": grade_prompt}));
+        let curr_grade = get_chat_response(&api_url, &api_key, &model, &messages);
+        messages.push(serde_json::json!({"role": "assistant", "content": curr_grade}));
         println!("{}", curr_grade);
         
         loop {
@@ -179,18 +194,21 @@ fn main() -> std::io::Result<()> {
             }
 
             let follow_up_prompt = format!(
-                "Here is a question given to a user: {}. \
-                Here is the response to that question: {}. \
-                This is the grade that was given: {}. \
-                This is a follow up question they have: {} \
-                Please respond to the user's follow up question.
+                "Please respond to the user's follow up question.
                 Respond in a friendly tone. Please be brief.
                 The response should be consise and to the point. The shorter the better.",
-                curr_question, curr_answer, curr_grade, curr_follow_up 
             );
-            let chat_follow_up_response = get_chat_response(&api_url, &api_key, &model, &follow_up_prompt);
+
+            messages.push(serde_json::json!({"role": "user", "content": curr_follow_up}));
+            messages.push(serde_json::json!({"role": "user", "content": follow_up_prompt}));
+
+            let chat_follow_up_response = get_chat_response(&api_url, &api_key, &model, &messages);
             println!("{}", chat_follow_up_response);
+
+            messages.pop();
+            messages.push(serde_json::json!({"role": "assistant", "content": chat_follow_up_response}));
         }
+        messages.push(serde_json::json!({"role": "user", "content": "Ask me another question."}));
     }
 
     Ok(())
