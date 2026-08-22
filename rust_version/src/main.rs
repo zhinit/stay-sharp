@@ -146,6 +146,8 @@ fn main() -> std::io::Result<()> {
     let question_mode: String = get_user_input(question1)?;
     let topics: String = get_user_input(question2)?;
     let difficulty: String = get_user_input(question3)?;
+
+    println!("--------------------");
     println!("--------------------");
 
     let initial_prompt = format!(
