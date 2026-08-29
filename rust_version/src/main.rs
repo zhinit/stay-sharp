@@ -16,8 +16,11 @@ fn redraw_from(input: &str, cursor:usize) {
     stdout().flush().unwrap();
 }
 
-fn get_user_input(question: &str) -> std::io::Result<String> {
+fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
     println!("{}", question);
+    if has_sep {
+        println!("--------------------");
+    }
 
     let kitty = crossterm::terminal::supports_keyboard_enhancement().unwrap_or(false);
 
@@ -89,7 +92,7 @@ fn get_user_input(question: &str) -> std::io::Result<String> {
     }
     disable_raw_mode()?;
     
-    println!();
+    println!("");
     Ok(input)
 }
 
@@ -143,11 +146,10 @@ fn main() -> std::io::Result<()> {
     let question2: &str = "What topic(s) do you want to cover?";
     let question3: &str = "How difficult do you want the questions to be (ie easy, medium, hard)?";
 
-    let question_mode: String = get_user_input(question1)?;
-    let topics: String = get_user_input(question2)?;
-    let difficulty: String = get_user_input(question3)?;
+    let question_mode: String = get_user_input(question1, false)?;
+    let topics: String = get_user_input(question2, false)?;
+    let difficulty: String = get_user_input(question3, false)?;
 
-    println!("--------------------");
     println!("--------------------");
 
     let initial_prompt = format!(
@@ -167,10 +169,11 @@ fn main() -> std::io::Result<()> {
         let curr_question = get_chat_response(&api_url, &api_key, &model, &messages);
 
         // send that question to the user and get their response
-        let curr_answer = get_user_input(&curr_question)?;
+        let curr_answer = get_user_input(&curr_question, true)?;
         if curr_answer == "exit" {
             break;
         }
+        println!("--------------------");
 
         // grade user and see if they have any clarifying questions or want to coninue
         let grade_prompt = format!(
@@ -189,8 +192,10 @@ fn main() -> std::io::Result<()> {
         
         loop {
             let curr_follow_up = get_user_input(
-                "Do you have any clarifying questions? If not type \"n\" to get the next question"
+                "Do you have any clarifying questions? If not type \"n\" to get the next question",
+                true
             )?;
+            println!("--------------------");
             if curr_follow_up == "n" {
                 break;
             }
