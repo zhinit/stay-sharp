@@ -37,11 +37,10 @@ After collecting all three answers, ask the first question immediately.
 
 After grading each answer, ask: "Do you have any clarifying questions? If not, say 'n' to get the next question."
 
-- If the user asks a clarifying question, answer it briefly, then ask again if they have more.
-- Repeat until the user says "n".
-- Then ask the next quiz question.
+- If the user responds with anything other than "n", treat it as a clarifying question. Answer it briefly, then ask again if they have more.
+- ONLY advance to the next question when the user says exactly "n".
+- Never grade a clarifying question. Only grade direct answers to quiz questions.
 
 ## Constraints
 
 - Read-only. Do not edit files or run state-changing commands.
-- Keep every turn short.
