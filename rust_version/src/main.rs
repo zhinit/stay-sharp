@@ -97,6 +97,7 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
 }
 
 fn get_chat_response(
+    provider: &str,
     api_url: &str, 
     api_key: &str, 
     model: &str, 
@@ -107,30 +108,56 @@ fn get_chat_response(
         .build()
         .expect("Failed to build HTTP client");
 
-    let body = serde_json::json!({
-        "model": model,
-        "messages": messages,
-        "reasoning": {"effort": "none"},
-    });
+    if provider == "claude" {
+        let body = serde_json::json!({
+            "model": model,
+            "messages": messages,
+            "max_tokens": 1024,
+        });
 
-    let response = client.post(format!("{}/v1/chat/completions", api_url))
-        .header("Authorization", format!("Bearer {}", api_key))
-        .json(&body)
-        .send()
-        .expect("Failed to send request");
+        let response = client.post(format!("{}/v1/messages", api_url))
+            .header("x-api-key", api_key)
+            .header("anthropic-version", "2023-06-01")
+            .json(&body)
+            .send()
+            .expect("Failed to send request");
 
-    let json: serde_json::Value = response.json()
-        .expect("Failed to parse response");
+        let json: serde_json::Value = response.json()
+            .expect("Failed to parse response");
 
-    json["choices"][0]["message"]["content"]
-        .as_str()
-        .unwrap_or("No response")
-        .to_string()
+        json["content"][0]["text"]
+            .as_str()
+            .unwrap_or("No response")
+            .to_string()
+    } else {
+        let body = serde_json::json!({
+            "model": model,
+            "messages": messages,
+            "reasoning": {"effort": "none"},
+        });
+
+        let response = client.post(format!("{}/v1/chat/completions", api_url))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .json(&body)
+            .send()
+            .expect("Failed to send request");
+
+        let json: serde_json::Value = response.json()
+            .expect("Failed to parse response");
+
+        json["choices"][0]["message"]["content"]
+            .as_str()
+            .unwrap_or("No response")
+            .to_string()
+    } 
 }
 
 fn main() -> std::io::Result<()> {
 
     dotenvy::dotenv().ok();
+
+    let provider = std::env::var("STAYSHARP_PROVIDER")
+        .expect("Error: STAYSHARP_PROVIDER must be set");
     
     let api_url = std::env::var("STAYSHARP_API_URL")
         .expect("Error: STAYSHARP_API_URL must be set");
@@ -153,10 +180,10 @@ fn main() -> std::io::Result<()> {
     println!("--------------------");
 
     let initial_prompt = format!(
-        "Ask me a coding question where the type of question will be {}. \
+        "Ask me a question where the type of question will be {}. \
         The topic should be related to {}. \
         The level of difficulty should be {}. \
-        This answer to this should only be a few lines of code, \
+        This answer to this should only be a few lines, \
         or a one liner if appropriate.",
         question_mode, topics, difficulty
     );
@@ -166,7 +193,7 @@ fn main() -> std::io::Result<()> {
 
     loop {
         // generate a question based on initial responses
-        let curr_question = get_chat_response(&api_url, &api_key, &model, &messages);
+        let curr_question = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
 
         // send that question to the user and get their response
         let curr_answer = get_user_input(&curr_question, true)?;
@@ -184,9 +211,8 @@ fn main() -> std::io::Result<()> {
         );
 
         messages.push(serde_json::json!({"role": "assistant", "content": curr_question}));
-        messages.push(serde_json::json!({"role": "user", "content": curr_answer}));
-        messages.push(serde_json::json!({"role": "user", "content": grade_prompt}));
-        let curr_grade = get_chat_response(&api_url, &api_key, &model, &messages);
+        messages.push(serde_json::json!({"role": "user", "content": format!("{}\n{}", curr_answer, grade_prompt)}));
+        let curr_grade = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
         messages.push(serde_json::json!({"role": "assistant", "content": curr_grade}));
         println!("{}", curr_grade);
         
@@ -206,13 +232,11 @@ fn main() -> std::io::Result<()> {
                 The response should be consise and to the point. The shorter the better.",
             );
 
-            messages.push(serde_json::json!({"role": "user", "content": curr_follow_up}));
-            messages.push(serde_json::json!({"role": "user", "content": follow_up_prompt}));
+            messages.push(serde_json::json!({"role": "user", "content": format!("{}\n{}", curr_follow_up, follow_up_prompt)}));
 
-            let chat_follow_up_response = get_chat_response(&api_url, &api_key, &model, &messages);
+            let chat_follow_up_response = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
             println!("{}", chat_follow_up_response);
 
-            messages.pop();
             messages.push(serde_json::json!({"role": "assistant", "content": chat_follow_up_response}));
         }
         messages.push(serde_json::json!({"role": "user", "content": "Ask me another question."}));
