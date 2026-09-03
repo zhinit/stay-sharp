@@ -88,17 +88,23 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
             match key.code {
                 KeyCode::Char(c) => {
                     if key.modifiers.contains(KeyModifiers::CONTROL) {
-                        if kitty {
-                            execute!(stdout(), PopKeyboardEnhancementFlags)?;
+                        if c == 'j' {
+                            input.insert(cursor, '\n');
+                            cursor += 1;
+                            redraw(&input, cursor, &mut cursor_row, term_width);
+                        } else if c == 'c' {
+                            if kitty {
+                                execute!(stdout(), PopKeyboardEnhancementFlags)?;
+                            }
+                            disable_raw_mode()?;
+                            println!("");
+                            std::process::exit(0);
                         }
-                        disable_raw_mode()?;
-                        println!("");
-                        std::process::exit(0);
+                    } else {
+                        input.insert(cursor, c);
+                        cursor += 1;
+                        redraw(&input, cursor, &mut cursor_row, term_width);
                     }
-
-                    input.insert(cursor, c);
-                    cursor += 1;
-                    redraw(&input, cursor, &mut cursor_row, term_width);
                 }
                 KeyCode::Enter => {
                     if key.modifiers.contains(KeyModifiers::SHIFT) {

@@ -31,7 +31,7 @@
 - [x] Clean exit (Ctrl+C handling)
 - [x] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)
 - [x] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
-- [ ] Ctrl+J newline fallback for terminals without kitty protocol
+- [x] Ctrl+J newline fallback for terminals without kitty protocol
 - [ ] Error handling (bad API key, network issues, etc.)
 - [ ] README with install instructions
 
