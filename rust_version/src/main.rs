@@ -6,7 +6,7 @@ use crossterm::execute;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 use std::io::{stdout, Write};
 
-fn visual_pos(input: &str, byte_offset: usize, term_width: u16) -> (u16, u16) {
+fn get_cursor_position(input: &str, byte_offset: usize, term_width: u16) -> (u16, u16) {
     let mut col: u16 = 0;
     let mut row: u16 = 0;
     for ch in input[..byte_offset].chars() {
@@ -38,8 +38,8 @@ fn redraw(input: &str, cursor: usize, cursor_row: &mut u16, term_width: u16) {
         }
     }
 
-    let (_, end_row) = visual_pos(input, input.len(), term_width);
-    let (cur_col, cur_row) = visual_pos(input, cursor, term_width);
+    let (_, end_row) = get_cursor_position(input, input.len(), term_width);
+    let (cur_col, cur_row) = get_cursor_position(input, cursor, term_width);
 
     let rows_back = end_row - cur_row;
     if rows_back > 0 {
@@ -124,13 +124,81 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
                         redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
+                KeyCode::Up => {
+                    let (cursor_col, _) = get_cursor_position(&input, cursor, term_width);
+                    if cursor_row > 0 {
+                        let target_col = cursor_col;
+                        let mut pos: usize = 0;
+                        let mut r: u16 = 0;
+                        let mut c: u16 = 0;
+                        for (i, ch) in input.char_indices() {
+                            if r == cursor_row - 1 && c == target_col {
+                                pos = i;
+                                break;
+                            }
+                            if ch == '\n' {
+                                if r == cursor_row - 1 {
+                                    pos = i;
+                                    break;
+                                }
+                                r += 1;
+                                c = 0;
+                            } else {
+                                c += 1;
+                                if c > term_width {
+                                    r += 1;
+                                    c = 0;
+                                }
+                            }
+                        }
+                        cursor = pos;
+                        redraw(&input, cursor, &mut cursor_row, term_width);
+                    }
+                }
+                KeyCode::Down => {
+                    let (cursor_col, _) = get_cursor_position(&input, cursor, term_width);
+                    let (_, end_row) = get_cursor_position(&input, input.len(), term_width);
+                    if cursor_row < end_row {
+                        let target_row = cursor_row + 1;
+                        let target_col = cursor_col;
+                        let mut pos: usize = input.len();
+                        let mut r: u16 = 0;
+                        let mut c: u16 = 0;
+                        for (i, ch) in input.char_indices() {
+                            if r == target_row && c == target_col {
+                                pos = i;
+                                break;
+                            }
+                            if r > target_row {
+                                pos = i;
+                                break;
+                            }
+                            if ch == '\n' {
+                                if r == target_row {
+                                    pos = i;
+                                    break;
+                                }
+                                r += 1;
+                                c = 0;
+                            } else {
+                                c += 1;
+                                if c >= term_width {
+                                    r += 1;
+                                    c = 0;
+                                }
+                            }
+                        }
+                        cursor = pos;
+                        redraw(&input, cursor, &mut cursor_row, term_width);
+                    }
+                }
                 _ => {}
             }
 
         }
     }
 
-    let (_, end_row) = visual_pos(&input, input.len(), term_width);
+    let (_, end_row) = get_cursor_position(&input, input.len(), term_width);
     if end_row > cursor_row {
         print!("\x1B[{}B", end_row - cursor_row);
     }
