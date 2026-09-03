@@ -54,6 +54,10 @@ fn redraw(input: &str, cursor: usize, cursor_row: &mut u16, term_width: u16) {
     stdout().flush().unwrap();
 }
 
+fn is_word_boundary(char_byte: u8) -> bool {
+    char_byte == b' ' || char_byte == b'\n'
+}
+
 fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
     println!("{}", question);
     if has_sep {
@@ -106,20 +110,46 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
                     }
                 }
                 KeyCode::Backspace => {
-                    if cursor > 0 {
+                    if key.modifiers.contains(KeyModifiers::ALT) {
+                        while cursor > 0 && is_word_boundary(input.as_bytes()[cursor - 1]) {
+                            cursor -= 1;
+                            input.remove(cursor);
+                        }
+                        while cursor > 0 && !is_word_boundary(input.as_bytes()[cursor - 1]) {
+                            cursor -= 1;
+                            input.remove(cursor);
+                        }
+                        redraw(&input, cursor, &mut cursor_row, term_width);
+                    } else if cursor > 0 {
                         cursor -= 1;
                         input.remove(cursor);
                         redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
                 KeyCode::Left => {
-                    if cursor > 0 {
+                    if key.modifiers.contains(KeyModifiers::ALT) {
+                        while cursor > 0 && is_word_boundary(input.as_bytes()[cursor - 1]) {
+                            cursor -= 1;
+                        }
+                        while cursor > 0 && !is_word_boundary(input.as_bytes()[cursor - 1]) {
+                            cursor -= 1;
+                        }
+                        redraw(&input, cursor, &mut cursor_row, term_width);
+                    } else if cursor > 0 {
                         cursor -= 1;
                         redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
                 KeyCode::Right => {
-                    if cursor < input.len() {
+                    if key.modifiers.contains(KeyModifiers::ALT) {
+                        while cursor < input.len() && !is_word_boundary(input.as_bytes()[cursor]) {
+                            cursor += 1;
+                        }
+                        while cursor < input.len() && is_word_boundary(input.as_bytes()[cursor]) {
+                            cursor += 1;
+                        } 
+                        redraw(&input, cursor, &mut cursor_row, term_width);
+                    } else if cursor < input.len() {
                         cursor += 1;
                         redraw(&input, cursor, &mut cursor_row, term_width);
                     }
