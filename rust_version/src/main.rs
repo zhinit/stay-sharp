@@ -3,16 +3,54 @@ use crossterm::event::{
     KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags
 };
 use crossterm::execute;
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 use std::io::{stdout, Write};
 
-fn redraw_from(input: &str, cursor:usize) {
-    let tail = &input[cursor..];
-    print!("{}\x1B[K", tail);
-    let chars_after = tail.chars().count();
-    if chars_after > 0 {
-        print!("\x1B[{}D", chars_after);
+fn visual_pos(input: &str, byte_offset: usize, term_width: u16) -> (u16, u16) {
+    let mut col: u16 = 0;
+    let mut row: u16 = 0;
+    for ch in input[..byte_offset].chars() {
+        if ch == '\n' {
+            row += 1;
+            col = 0;
+        } else {
+            col += 1;
+            if col >= term_width {
+                row += 1;
+                col = 0;
+            }
+        }
     }
+    (col, row)
+}
+
+fn redraw(input: &str, cursor: usize, cursor_row: &mut u16, term_width: u16) {
+    if *cursor_row > 0 {
+        print!("\x1B[{}A", cursor_row);
+    }
+    print!("\r\x1B[J");
+
+    for ch in input.chars() {
+        if ch == '\n' {
+            print!("\r\n");
+        } else {
+            print!("{}", ch);
+        }
+    }
+
+    let (_, end_row) = visual_pos(input, input.len(), term_width);
+    let (cur_col, cur_row) = visual_pos(input, cursor, term_width);
+
+    let rows_back = end_row - cur_row;
+    if rows_back > 0 {
+        print!("\x1B[{}A", rows_back);
+    }
+    print!("\r");
+    if cur_col > 0 {
+        print!("\x1B[{}C", cur_col);
+    }
+
+    *cursor_row = cur_row;
     stdout().flush().unwrap();
 }
 
@@ -34,6 +72,8 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
 
     let mut input = String::new();
     let mut cursor: usize = 0;
+    let (term_width, _) = size()?;
+    let mut cursor_row: u16 = 0;
 
     loop {
         if let Event::Key(key) = read()? {
@@ -54,15 +94,13 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
 
                     input.insert(cursor, c);
                     cursor += 1;
-                    print!("{}", c);
-                    redraw_from(&input, cursor);
+                    redraw(&input, cursor, &mut cursor_row, term_width);
                 }
                 KeyCode::Enter => {
                     if key.modifiers.contains(KeyModifiers::SHIFT) {
                         input.push('\n');
                         cursor = input.len();
-                        print!("\r\n");
-                        stdout().flush()?;
+                        redraw(&input, cursor, &mut cursor_row, term_width);
                     } else {
                         break;
                     }
@@ -71,23 +109,19 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
                     if cursor > 0 {
                         cursor -= 1;
                         input.remove(cursor);
-                        print!("\x08");
-                        redraw_from(&input, cursor);
+                        redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
                 KeyCode::Left => {
                     if cursor > 0 {
                         cursor -= 1;
-                        print!("\x1B[D");
-                        stdout().flush()?;
-
+                        redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
                 KeyCode::Right => {
                     if cursor < input.len() {
                         cursor += 1;
-                        print!("\x1B[C");
-                        stdout().flush()?;
+                        redraw(&input, cursor, &mut cursor_row, term_width);
                     }
                 }
                 _ => {}
@@ -95,6 +129,13 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
 
         }
     }
+
+    let (_, end_row) = visual_pos(&input, input.len(), term_width);
+    if end_row > cursor_row {
+        print!("\x1B[{}B", end_row - cursor_row);
+    }
+    print!("\r");
+    stdout().flush()?;
 
     if kitty {
         execute!(stdout(), PopKeyboardEnhancementFlags)?;
