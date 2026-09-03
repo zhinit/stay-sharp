@@ -98,8 +98,8 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
                 }
                 KeyCode::Enter => {
                     if key.modifiers.contains(KeyModifiers::SHIFT) {
-                        input.push('\n');
-                        cursor = input.len();
+                        input.insert(cursor, '\n');
+                        cursor += 1;
                         redraw(&input, cursor, &mut cursor_row, term_width);
                     } else {
                         break;
@@ -145,7 +145,7 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
                                 c = 0;
                             } else {
                                 c += 1;
-                                if c > term_width {
+                                if c >= term_width {
                                     r += 1;
                                     c = 0;
                                 }
