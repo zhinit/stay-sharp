@@ -28,7 +28,7 @@
 ## Phase 4: Polish
 - [x] Conversation history (messages array) for multi-turn follow-ups
 - [x] Claude API support (/v1/messages format)
-- [ ] Clean exit (Ctrl+C handling)
+- [x] Clean exit (Ctrl+C handling)
 - [ ] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)
 - [ ] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
 - [ ] Ctrl+J newline fallback for terminals without kitty protocol

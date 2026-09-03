@@ -43,6 +43,15 @@ fn get_user_input(question: &str, has_sep: bool) -> std::io::Result<String> {
 
             match key.code {
                 KeyCode::Char(c) => {
+                    if key.modifiers.contains(KeyModifiers::CONTROL) {
+                        if kitty {
+                            execute!(stdout(), PopKeyboardEnhancementFlags)?;
+                        }
+                        disable_raw_mode()?;
+                        println!("");
+                        std::process::exit(0);
+                    }
+
                     input.insert(cursor, c);
                     cursor += 1;
                     print!("{}", c);
