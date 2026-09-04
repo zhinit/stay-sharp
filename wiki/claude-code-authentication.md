@@ -55,12 +55,58 @@ This launch was paused indefinitely. Agent SDK and `claude -p` usage currently d
 
 ## Credential storage
 
-On macOS, credentials are stored in the encrypted macOS Keychain. On Linux, in `~/.claude/.credentials.json` with mode `0600`. On Windows, in `%USERPROFILE%\.claude\.credentials.json`. The `CLAUDE_CONFIG_DIR` environment variable overrides the default location on Linux and Windows (source: claude-code-authentication-2026.md).
+On macOS, credentials are stored in the encrypted macOS Keychain under the service name `"Claude Code-credentials"` with the account set to `$USER`. On Linux, credentials are stored in `~/.claude/.credentials.json` with mode `0600`. On Windows, in `%USERPROFILE%\.claude\.credentials.json`. The `CLAUDE_CONFIG_DIR` environment variable overrides the default `.claude` directory on all platforms; the macOS Keychain entry is also keyed to that directory, so a different `CLAUDE_CONFIG_DIR` reads a different entry (source: claude-code-authentication-2026.md, gist-prajwalsrinvas-claude-code-credentials-2025.md).
+
+When the macOS Keychain rejects a write (e.g. locked in an SSH session), Claude Code falls back to `~/.claude/.credentials.json` with mode `0600`, the same storage it uses on Linux (source: claude-code-authentication-2026.md).
+
+### Credential file format
+
+All platforms use the same JSON structure (source: gist-prajwalsrinvas-claude-code-credentials-2025.md, gist-shubcodes-claude-code-oauth-login-2025.md):
+
+```json
+{
+  "claudeAiOauth": {
+    "accessToken": "sk-ant-oat01-...",
+    "refreshToken": "sk-ant-ort01-...",
+    "expiresAt": 1748276587173,
+    "scopes": ["user:inference", "user:profile", "user:sessions:claude_code", "user:mcp_servers"]
+  }
+}
+```
+
+The `accessToken` uses the prefix `sk-ant-oat01-`. The `refreshToken` uses the prefix `sk-ant-ort01-`. `expiresAt` is Unix epoch in milliseconds. The `scopes` array lists the OAuth scopes the token was granted (source: gist-shubcodes-claude-code-oauth-login-2025.md).
+
+Additional fields `subscriptionType` and `rateLimitTier` may appear in the `claudeAiOauth` object, both nullable (source: gist-shubcodes-claude-code-oauth-login-2025.md).
+
+The config file `~/.claude.json` stores account metadata separately (not credentials): an `oauthAccount` object with `accountUuid`, `emailAddress`, and `organizationUuid` (source: gist-shubcodes-claude-code-oauth-login-2025.md).
+
+### Reading credentials
+
+On macOS (source: gist-prajwalsrinvas-claude-code-credentials-2025.md):
+```bash
+security find-generic-password -s "Claude Code-credentials" -w
+```
+
+On Linux (source: gist-prajwalsrinvas-claude-code-credentials-2025.md):
+```bash
+cat ~/.claude/.credentials.json
+```
+
+On Windows PowerShell (source: gist-prajwalsrinvas-claude-code-credentials-2025.md):
+```powershell
+Get-Content "$env:USERPROFILE\.claude\.credentials.json"
+```
+
+### Environment variable overrides
+
+`CLAUDE_CODE_OAUTH_TOKEN` silently overrides stored credentials when set. This is the primary env var for CI/scripts. `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` and `CLAUDE_CODE_OAUTH_SCOPES` can also be set for print mode (source: claude-code-authentication-2026.md, gist-shubcodes-claude-code-oauth-login-2025.md).
+
+If `/login` is run while `CLAUDE_CODE_OAUTH_TOKEN` is set, Claude Code switches the current session to the new login, but reads the variable again in every new session until it is removed from the shell profile or settings `env` block (source: claude-code-authentication-2026.md).
 
 ## Login expiry
 
-Logins created with `/login` show a warning three days before expiry. Once expired, requests fail until you run `/login` again. `/status` shows a `Login: Expired` row when the saved credential is expired (source: claude-code-authentication-2026.md).
+Access tokens expire after 8 hours. Claude Code refreshes them automatically using the stored refresh token. Logins created with `/login` show a warning three days before expiry. Once expired and unrefreshable, requests fail until you run `/login` again. `/status` shows a `Login: Expired` row when the saved credential is expired (source: claude-code-authentication-2026.md, alif-claude-oauth-api-key-2025.md).
 
 ## Related pages
 
-[[claude-agent-sdk]] | [[claude-code-headless]] | [[claude-code-config-paths]]
+[[claude-code-oauth-flow]] | [[claude-code-token-api-reuse]] | [[claude-agent-sdk]] | [[claude-code-headless]] | [[claude-code-config-paths]]

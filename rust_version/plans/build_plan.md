@@ -1,40 +1,14 @@
-# Build Plan
+# To do
 
-## Phase 1: Project setup
-- [x] Install Rust toolchain (rustup)
-- [x] `cargo init` inside rust_version/
-- [x] Build and run hello world
-
-## Phase 2: CLI skeleton
-- [x] Accept user input from terminal (single line)
-- [x] Multi-line input (Shift+Enter for newline, Enter to submit)
-  - [x] Raw mode on/off, read single key events
-  - [x] Kitty keyboard protocol: push/pop DISAMBIGUATE_ESCAPE_CODES (see wiki/kitty-keyboard-protocol.md)
-  - [x] Input loop: chars accumulate, Enter submits, Shift+Enter inserts newline
-  - [x] Backspace
-  - [x] Cursor movement: Left/Right (Up/Down deferred until multi-line redraw is built)
-  - [x] Only push enhancement flags when supports_keyboard_enhancement() is true
-  - [x] Filter to KeyEventKind::Press (Windows reports key releases too)
-- [x] Session setup questions (mode, topic, difficulty)
-- [x] Main loop structure (question > answer > grade > clarify > repeat)
-
-## Phase 3: LLM integration
-- [x] Read API key from environment variable
-- [x] Make an API call to an LLM provider and print the response
-- [x] Generate a question based on session setup
-- [x] Grade a user's answer and give feedback
-- [x] Clarifying question conversation
-
-## Phase 4: Polish
-- [x] Conversation history (messages array) for multi-turn follow-ups
-- [x] Claude API support (/v1/messages format)
-- [x] Clean exit (Ctrl+C handling)
-- [x] Full multi-line redraw (fixes cross-line backspace display bug + enables Up/Down cursor movement)
-- [x] Word-wise: Option+Left/Right (jump), Option+Backspace (delete word)
-- [x] Ctrl+J newline fallback for terminals without kitty protocol
+- [ ] Esc cancels in-flight LLM request, reopens editor with previous text
+- [ ] Moon phase loading animation (random animation pool later)
+- [ ] Better mode parsing (match "write", "read", etc. to modes without an LLM call)
+- [ ] Few-shot examples in system prompts (question format + grading format, per mode)
+- [ ] Pre-generate next question in background while user is in feedback/clarify loop
+- [ ] Streaming responses (token-by-token output instead of blocking on full response)
 - [ ] Error handling (bad API key, network issues, etc.)
 - [ ] README with install instructions
 
-## Phase 5: Distribution
+## Distribution
 - [ ] GitHub releases with prebuilt binaries
 - [ ] Homebrew formula

@@ -4,7 +4,9 @@
 - [[claude-code-plugins]] -- Plugin structure, components, manifest schema, installation scopes, marketplaces, and distribution.
 - [[claude-agent-sdk]] -- The Agent SDK for building standalone agents in Python/TypeScript with the full Claude Code agent loop, tools, sessions, and permissions.
 - [[claude-code-skills]] -- Skills as prompt-based instructions loaded into a session, including dynamic context injection, subagent execution, and the Agent Skills open standard.
-- [[claude-code-authentication]] -- Authentication methods, credential precedence chain, subscription vs API key, `setup-token`, bare mode auth restrictions, and the paused Agent SDK credit pool.
+- [[claude-code-authentication]] -- Authentication methods, credential precedence chain, subscription vs API key, `setup-token`, bare mode auth restrictions, credential storage format, and the paused Agent SDK credit pool.
+- [[claude-code-oauth-flow]] -- OAuth PKCE flow internals: endpoints, client ID, scopes, token exchange, refresh, and the `ant` CLI flow.
+- [[claude-code-token-api-reuse]] -- Using Claude Code OAuth tokens to call `/v1/messages` directly: extraction, curl examples, refresh, and caveats.
 - [[claude-code-headless]] -- Running Claude Code non-interactively as a subprocess with `claude -p`, bare mode, output formats, and piping.
 - [[claude-code-subagents]] -- In-session subagents: built-in types, custom definitions, foreground/background execution, forks, tool filtering, nesting, and concurrency limits.
 - [[claude-code-agent-view]] -- Agent view UI for managing background sessions: dispatching, monitoring, supervisor daemon, worktree isolation, and shell management commands.
