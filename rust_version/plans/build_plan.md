@@ -1,7 +1,7 @@
 # To do
 
+- [x] Moon phase loading animation (random animation pool later)
 - [ ] Esc cancels in-flight LLM request, reopens editor with previous text
-- [ ] Moon phase loading animation (random animation pool later)
 - [ ] Better mode parsing (match "write", "read", etc. to modes without an LLM call)
 - [ ] Few-shot examples in system prompts (question format + grading format, per mode)
 - [ ] Pre-generate next question in background while user is in feedback/clarify loop

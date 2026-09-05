@@ -5,6 +5,9 @@ use crossterm::event::{
 use crossterm::execute;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 use std::io::{stdout, Write};
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 fn get_cursor_position(input: &str, byte_offset: usize, term_width: u16) -> (u16, u16) {
     let mut col: u16 = 0;
@@ -306,6 +309,48 @@ fn get_chat_response(
     } 
 }
 
+fn wait_with_spinner(rx: mpsc::Receiver<String>) -> String {
+    let frames = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+    let mut i = 0;
+    loop {
+        match rx.try_recv() {
+            Ok(result) => {
+                print!("\r\x1B[K");
+                stdout().flush().unwrap();
+                return result;
+            }
+            Err(_) => {
+                print!("\r{}", frames[i % frames.len()]);
+                stdout().flush().unwrap();
+                i += 1;
+                std::thread::sleep(Duration::from_millis(100));
+            }
+        }
+    }
+}
+
+fn get_chat_response_with_spinner(
+    provider: &str,
+    api_url: &str,
+    api_key: &str,
+    model: &str,
+    messages: &Vec<serde_json::Value>,
+) -> String {
+    let (tx, rx) = mpsc::channel();
+    let (p, u, k, m, msgs) = (
+        provider.to_string(),
+        api_url.to_string(),
+        api_key.to_string(),
+        model.to_string(),
+        messages.clone(),
+    );
+    thread::spawn(move || {
+        let result = get_chat_response(&p, &u, &k, &m, &msgs);
+        tx.send(result).unwrap();
+    });
+    wait_with_spinner(rx)
+}
+
 fn main() -> std::io::Result<()> {
 
     dotenvy::dotenv().ok();
@@ -347,7 +392,7 @@ fn main() -> std::io::Result<()> {
 
     loop {
         // generate a question based on initial responses
-        let curr_question = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
+        let curr_question = get_chat_response_with_spinner(&provider, &api_url, &api_key, &model, &messages);
 
         // send that question to the user and get their response
         let curr_answer = get_user_input(&curr_question, true)?;
@@ -366,7 +411,7 @@ fn main() -> std::io::Result<()> {
 
         messages.push(serde_json::json!({"role": "assistant", "content": curr_question}));
         messages.push(serde_json::json!({"role": "user", "content": format!("{}\n{}", curr_answer, grade_prompt)}));
-        let curr_grade = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
+        let curr_grade = get_chat_response_with_spinner(&provider, &api_url, &api_key, &model, &messages);
         messages.push(serde_json::json!({"role": "assistant", "content": curr_grade}));
         println!("{}", curr_grade);
         
@@ -388,7 +433,7 @@ fn main() -> std::io::Result<()> {
 
             messages.push(serde_json::json!({"role": "user", "content": format!("{}\n{}", curr_follow_up, follow_up_prompt)}));
 
-            let chat_follow_up_response = get_chat_response(&provider, &api_url, &api_key, &model, &messages);
+            let chat_follow_up_response = get_chat_response_with_spinner(&provider, &api_url, &api_key, &model, &messages);
             println!("{}", chat_follow_up_response);
 
             messages.push(serde_json::json!({"role": "assistant", "content": chat_follow_up_response}));
