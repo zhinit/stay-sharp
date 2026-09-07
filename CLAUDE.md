@@ -17,6 +17,7 @@ currently building by default, with the option to pick topics manually.
   `docs/`, `src/`, `tests/`.
 - **`skill_version/`** -- the Claude Code skill implementation. Has its
   own `docs/`, `src/`, `tests/`.
+- **`ts-version/`** -- the Typescript implementation being built out now.
 
 Each version's `docs/` holds specs, decisions, and methodology for that version.
 

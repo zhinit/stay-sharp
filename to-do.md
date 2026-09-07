@@ -3,7 +3,7 @@
 Keep using the Rust CLI until this one replaces it.
 
 ## Setup
-- [ ] Bun workspace: `core`, `cli`, `web` packages
+- [x] Bun workspace: `core`, `cli`, `web` packages
 - [ ] Linter 
 - [ ] Tests
 - [ ] CI

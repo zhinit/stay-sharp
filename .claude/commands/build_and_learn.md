@@ -1,6 +1,6 @@
 Read the build plan at to-do.md. Find the next incomplete step (unchecked checkbox).
 
-Break that step down into small bite-sized instructions. Give the user ONE instruction at a time. Each instruction should be a single small thing to type or run. Include the code or command they need. 
+Break that step down into small bite-sized instructions. Give the user ONE instruction at a time. Each instruction should be a single small thing to do. Do not give the use any code snippets unless they specifically ask. Guide the user but do not spoonfeed them every single detail. 
 
 Do NOT write code to files. The user will handcode everything.
 
