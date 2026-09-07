@@ -33,13 +33,22 @@ fn redraw(input: &str, cursor: usize, cursor_row: &mut u16, term_width: u16) {
     }
     print!("\r\x1B[J");
 
+    print!("\x1B[?7l");
+    let mut col: u16 = 0;
     for ch in input.chars() {
         if ch == '\n' {
             print!("\r\n");
+            col = 0;
         } else {
             print!("{}", ch);
+            col += 1;
+            if col >= term_width {
+                print!("\r\n");
+                col = 0;
+            }
         }
     }
+    print!("\x1B[?7h");
 
     let (_, end_row) = get_cursor_position(input, input.len(), term_width);
     let (cur_col, cur_row) = get_cursor_position(input, cursor, term_width);
