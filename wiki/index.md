@@ -32,3 +32,31 @@
 - [[crossterm]] -- Terminal manipulation, raw mode, event reading, keyboard input, styling, alternate screen, command API.
 - [[terminal-keyboard-encoding]] -- How terminals encode keypresses as bytes, the Enter/Shift+Enter and Tab/Ctrl+I collisions, Escape ambiguity, modifyOtherKeys and fixterms history.
 - [[kitty-keyboard-protocol]] -- CSI u key encoding, progressive enhancement flags, push/pop stack, detection, per-terminal and multiplexer support, fallback guidance.
+- [[bun]] -- All-in-one JS/TS toolkit: runtime, package manager, test runner, bundler. JavaScriptCore engine, Anthropic-acquired, Rust rewrite in progress.
+- [[bun-runtime]] -- Bun runtime: startup performance, TypeScript/JSX transpilation, watch/hot modes, flags, Node.js compatibility, web-standard APIs.
+- [[bun-package-manager]] -- Bun package manager: install/add/remove, linker strategies, lockfile, workspaces, security, CI integration.
+- [[bun-test-runner]] -- Bun test runner: Jest compatibility, lifecycle hooks, mocking, snapshots, coverage, sharding, CI, AI agent env vars.
+- [[bun-bundler]] -- Bun bundler: CLI and API, targets, formats, code splitting, tree shaking, plugins, bytecode, compile-to-binary.
+- [[bun-http-server]] -- Bun HTTP server: Bun.serve(), routing, WebSocket, HTTP/2 and HTTP/3, lifecycle, performance benchmarks.
+- [[bun-file-io]] -- Bun file I/O: Bun.file(), Bun.write(), BunFile/Blob interface, FileSink, platform-specific syscalls.
+- [[bun-sqlite]] -- Bun SQLite: bun:sqlite module, Database/Statement classes, transactions, WAL mode, type mappings, ES module import.
+- [[bun-shell]] -- Bun Shell: $ template tag, output methods, piping, redirection, security, cross-platform builtins.
+- [[bun-configuration]] -- Bun configuration: bunfig.toml sections (runtime, serve, test, install, run), tsconfig integration, hierarchy.
+- [[bun-modules]] -- Bun module resolution: ESM/CJS interop, resolution order, package.json exports, path aliases, import.meta.
+- [[javascript-linting]] -- JS/TS linting landscape: ESLint vs Biome vs Oxlint, performance, feature comparison, decision framework, migration paths.
+- [[eslint]] -- ESLint linter: flat config, plugin architecture, rules, prerequisites, IDE integration.
+- [[typescript-eslint]] -- typescript-eslint: TypeScript parser/plugin for ESLint, rule sets (recommended/strict/stylistic), type-aware config.
+- [[biome]] -- Biome unified linter+formatter: Rust-based, 536 rules, domains, Biotype, GritQL plugins, migration tooling.
+- [[oxlint]] -- Oxlint linter from the Oxc project: 865+ rules, ESLint compat, tsgolint, categories, the broader Oxc ecosystem.
+- [[type-aware-linting]] -- Type-aware linting: typescript-eslint (59 rules), Biotype (~75-85%), tsgolint (43 rules), performance tradeoffs.
+- [[typescript-type-system]] -- Structural typing, narrowing, type operators, conditional/mapped/template literal types, type compatibility, inference.
+- [[typescript-generics]] -- Generic functions/types, constraints, const type params, NoInfer, variance annotations, overloads vs unions.
+- [[typescript-modules]] -- Module/moduleResolution options, ESM/CJS interop, verbatimModuleSyntax, package.json fields, recommended configs.
+- [[typescript-project-config]] -- tsconfig.json structure, compiler options, strict mode, project references, monorepo config patterns.
+- [[typescript-classes]] -- Class members, readonly, private vs #private, parameter properties, abstract classes, initialization order, this types.
+- [[typescript-utility-types]] -- Built-in type transformers: Partial, Pick, Omit, Record, Awaited, NoInfer, ReturnType, Parameters, and more.
+- [[typescript-enums]] -- Numeric/string enums, const enums, reverse mappings, union enums, as const alternative pattern.
+- [[typescript-decorators]] -- ECMAScript (stage 3) vs legacy decorators, factories, composition order, metadata, limitations.
+- [[typescript-resource-management]] -- using/await using declarations, Disposable/AsyncDisposable, DisposableStack.
+- [[typescript-migration-6]] -- TypeScript 6.0 new defaults, deprecations, ts5to6 tool, erasableSyntaxOnly, migration checklist.
+- [[typescript-standard-library]] -- Temporal, iterator helpers, Set methods, Map.getOrInsert, RegExp.escape, inferred type predicates, import defer.

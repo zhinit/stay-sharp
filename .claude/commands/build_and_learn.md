@@ -1,6 +1,6 @@
-Read the build plan at rust_version/plans/build_plan.md. Find the next incomplete step (unchecked checkbox).
+Read the build plan at to-do.md. Find the next incomplete step (unchecked checkbox).
 
-Break that step down into small bite-sized instructions. Give the user ONE instruction at a time. Each instruction should be a single small thing to type or run. Include the code or command they need. The user is new to Rust so explain unfamiliar concepts briefly.
+Break that step down into small bite-sized instructions. Give the user ONE instruction at a time. Each instruction should be a single small thing to type or run. Include the code or command they need. 
 
 Do NOT write code to files. The user will handcode everything.
 
