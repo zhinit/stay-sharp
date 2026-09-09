@@ -1,3 +1,5 @@
+import { getUserInput } from "./user-input.ts";
+
 type OpenAIChatResponse = {
 	choices: { message: { content: string } }[];
 };
@@ -63,24 +65,16 @@ async function getChatResponse(
 	}
 }
 
-function getUserInput(questionForUser: string, hasPartition = true): string {
-	console.log(questionForUser);
-	if (hasPartition) console.log("--------------------------------");
-	const userResponse = prompt("") ?? "Error getting user input :(";
-	if (hasPartition) console.log("--------------------------------");
-	return userResponse;
-}
-
 async function main() {
-	const questionType = getUserInput(
+	const questionType = await getUserInput(
 		"Do you want to write code, read code, or keep it conceptual?",
 		false,
 	);
-	const questionTopic = getUserInput(
+	const questionTopic = await getUserInput(
 		"What topic(s) do you want to practice?",
 		false,
 	);
-	const questionDifficulty = getUserInput(
+	const questionDifficulty = await getUserInput(
 		"How difficult do you want the questions to be (ie easy, medium, or hard)?",
 		false,
 	);
@@ -121,7 +115,7 @@ async function main() {
       Respond in a friendly tone. Please be brief. Short consise responses are best.\
     ";
 
-		const answer = getUserInput(question);
+		const answer = await getUserInput(question);
 		messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
 
 		const grade = await getChatResponse(
@@ -136,7 +130,7 @@ async function main() {
 		console.log("--------------------------------");
 
 		while (true) {
-			const followUp = getUserInput(
+			const followUp = await getUserInput(
 				"Do you have any follow up questions? If not, type 'n' to get the next question",
 			);
 			if (followUp === "n") {

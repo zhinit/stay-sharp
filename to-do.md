@@ -12,7 +12,7 @@ Keep using the Rust CLI until this one replaces it.
 - [x] start up questions
 - [x] pull in env variables
 - [x] wire up llm and grade a question
-- [ ] set up loop skeleton with follow ups too
+- [x] set up loop skeleton with follow ups too
 
 ## CLI modularize into cli and core
 - [ ] Multi-line editor with the same keybindings
