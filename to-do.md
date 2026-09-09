@@ -8,10 +8,13 @@ Keep using the Rust CLI until this one replaces it.
 - [x] Tests
 - [x] CI
 
-## Core
-- [ ] Session flow: setup questions, question, answer, grade, follow-ups, next
+## Match rust version
+- [x] start up questions
+- [x] pull in env variables
+- [x] wire up llm and grade a question
+- [ ] set up loop skeleton with follow ups too
 
-## CLI (parity with Rust version)
+## CLI modularize into cli and core
 - [ ] Multi-line editor with the same keybindings
 - [ ] Loading animation
 
