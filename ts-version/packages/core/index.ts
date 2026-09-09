@@ -1,3 +1,3 @@
 export default function makeWord(): string {
-  return "word";
+	return "word";
 }

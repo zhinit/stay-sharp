@@ -1,15 +1,19 @@
 {
-  "name": "stay-sharp",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
-  }
+	"name": "stay-sharp",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"lint": "biome check ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.12",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^7"
+	}
 }
