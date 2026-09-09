@@ -70,3 +70,28 @@
 - [[typescript-resource-management]] -- using/await using declarations, Disposable/AsyncDisposable, DisposableStack.
 - [[typescript-migration-6]] -- TypeScript 6.0 new defaults, deprecations, ts5to6 tool, erasableSyntaxOnly, migration checklist.
 - [[typescript-standard-library]] -- Temporal, iterator helpers, Set methods, Map.getOrInsert, RegExp.escape, inferred type predicates, import defer.
+- [[js-tui-landscape]] -- Overview comparing JS/TS TUI libraries by abstraction level: full frameworks, prompt toolkits, raw input.
+- [[opentui]] -- Zig-native TUI core with TypeScript bindings, Yoga flexbox, React/Solid reconcilers, powers OpenCode.
+- [[opentui-renderer]] -- Renderer creation, screen modes, capability detection, events, lifecycle, destruction, signal handling.
+- [[opentui-renderables]] -- Imperative tree nodes, mutation, tree membership, Yoga flexbox layout options, resize behavior.
+- [[opentui-components]] -- Component catalog with availability matrix across Core/React/Solid, usage details per component.
+- [[opentui-input]] -- Keyboard input (three approaches), mouse events, hit testing, renderable focus, text selection.
+- [[opentui-styling]] -- Colors (RGBA, parseColor, intent), text styling (StyledText, template literals), text units and cells.
+- [[opentui-react]] -- React bindings: createRoot, JSX elements, hooks, lifecycle, testing, DevTools.
+- [[opentui-solid]] -- Solid bindings: render, JSX config, hooks, lifecycle hooks, Portal/Dynamic, testing.
+- [[opentui-testing]] -- Test renderer, mock keyboard/mouse, ManualClock, capabilities fixtures, framework and keymap tests.
+- [[opentui-keymap]] -- Layered key bindings package: commands, layers, multi-key sequences, framework adapters.
+- [[opentui-animation]] -- Timeline API: numeric property animation, easing functions, global engine, sync, cleanup.
+- [[opentui-env-vars]] -- Environment variable configuration: stable, diagnostics, build-time, security-sensitive, remote.
+- [[ink]] -- React renderer for CLI apps using Yoga flexbox, plus Ink UI widget library.
+- [[terminal-kit]] -- Batteries-included Node.js terminal library: colors, input, menus, screen buffers, no ncurses.
+- [[blessed]] -- ncurses-like terminal UI for Node.js (unmaintained), plus neo-blessed and unblessed (alpha TS rewrite).
+- [[clack]] -- @clack/core unstyled prompt primitives and @clack/prompts pre-styled interactive CLI prompts.
+- [[node-raw-terminal-input]] -- Node.js readline.emitKeypressEvents, setRawMode, keypress npm package for raw terminal input.
+- [[ansi-escape-codes]] -- ANSI escape sequence structure, CSI format, C0 controls, sequence types, history.
+- [[sgr-text-styling]] -- Select Graphic Rendition: formatting attributes (bold, italic, underline, etc.), reset codes.
+- [[ansi-colors]] -- Terminal color depths: 3/4-bit (16), 8-bit (256), 24-bit (truecolor), palette layout, environment variables.
+- [[terminal-cursor-control]] -- Cursor movement, absolute positioning, save/restore, visibility, status report.
+- [[terminal-screen-control]] -- Erase display/line, scrolling, alternate screen buffer, bracketed paste, focus reporting.
+- [[osc-sequences]] -- Operating System Commands: window title, hyperlinks (OSC 8), clipboard (OSC 52).
+- [[terminal-standards-landscape]] -- ECMA-48, xterm extensions, terminfo, the "common set" approach, the standards gap.
