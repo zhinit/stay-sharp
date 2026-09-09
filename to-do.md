@@ -4,9 +4,9 @@ Keep using the Rust CLI until this one replaces it.
 
 ## Setup
 - [x] Bun workspace: `core`, `cli`, `web` packages
-- [ ] Linter 
-- [ ] Tests
-- [ ] CI
+- [x] Linter 
+- [x] Tests
+- [x] CI
 
 ## Core
 - [ ] Session flow: setup questions, question, answer, grade, follow-ups, next
