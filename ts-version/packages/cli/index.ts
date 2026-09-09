@@ -58,19 +58,33 @@ async function getChatResponse(
 			const payload = (await response.json()) as OpenAIChatResponse;
 			return payload.choices[0]?.message?.content ?? "No Response";
 		}
-	} catch (e) {
+	} catch {
 		return "Request failed without status code";
 	}
 }
 
+function getUserInput(questionForUser: string, hasPartition = true): string {
+	console.log(questionForUser);
+	if (hasPartition) console.log("--------------------------------");
+	const userResponse = prompt("") ?? "Error getting user input :(";
+	if (hasPartition) console.log("--------------------------------");
+	return userResponse;
+}
+
 async function main() {
-	const questionType = prompt(
+	const questionType = getUserInput(
 		"Do you want to write code, read code, or keep it conceptual?",
+		false,
 	);
-	const questionTopic = prompt("What topic(s) do you want to practice?");
-	const questionDifficulty = prompt(
+	const questionTopic = getUserInput(
+		"What topic(s) do you want to practice?",
+		false,
+	);
+	const questionDifficulty = getUserInput(
 		"How difficult do you want the questions to be (ie easy, medium, or hard)?",
+		false,
 	);
+	console.log("--------------------------------");
 
 	const provider = process.env.STAYSHARP_PROVIDER ?? "";
 	const apiUrl = process.env.STAYSHARP_API_URL ?? "";
@@ -87,14 +101,62 @@ async function main() {
 
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: initialPrompt });
-	const answer = await getChatResponse(
-		provider,
-		apiUrl,
-		apiKey,
-		model,
-		messages,
-	);
-	console.log(answer);
+
+	while (true) {
+		const question = await getChatResponse(
+			provider,
+			apiUrl,
+			apiKey,
+			model,
+			messages,
+		);
+		messages.push({ role: "assistant", content: question });
+
+		const gradingPrompt =
+			"\
+      Please grade this and give feedback.\
+      If the user got the answer corrct, tell them good job.\
+      If the user did not get the answer correct, \
+      tell them what they did right, what they did wrong, and what topics did they not understand.\
+      Respond in a friendly tone. Please be brief. Short consise responses are best.\
+    ";
+
+		const answer = getUserInput(question);
+		messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
+
+		const grade = await getChatResponse(
+			provider,
+			apiUrl,
+			apiKey,
+			model,
+			messages,
+		);
+		messages.push({ role: "assistant", content: grade });
+		console.log(grade);
+		console.log("--------------------------------");
+
+		while (true) {
+			const followUp = getUserInput(
+				"Do you have any follow up questions? If not, type 'n' to get the next question",
+			);
+			if (followUp === "n") {
+				break;
+			}
+			messages.push({ role: "user", content: followUp });
+
+			const followUpAnswer = await getChatResponse(
+				provider,
+				apiUrl,
+				apiKey,
+				model,
+				messages,
+			);
+			messages.push({ role: "assistant", content: followUpAnswer });
+			console.log(followUpAnswer);
+			console.log("--------------------------------");
+		}
+		messages.push({ role: "user", content: "Ask me another question." });
+	}
 }
 
 main();
