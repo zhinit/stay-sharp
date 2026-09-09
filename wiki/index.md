@@ -46,7 +46,17 @@
 - [[javascript-linting]] -- JS/TS linting landscape: ESLint vs Biome vs Oxlint, performance, feature comparison, decision framework, migration paths.
 - [[eslint]] -- ESLint linter: flat config, plugin architecture, rules, prerequisites, IDE integration.
 - [[typescript-eslint]] -- typescript-eslint: TypeScript parser/plugin for ESLint, rule sets (recommended/strict/stylistic), type-aware config.
-- [[biome]] -- Biome unified linter+formatter: Rust-based, 536 rules, domains, Biotype, GritQL plugins, migration tooling.
+- [[biome]] -- Biome unified linter+formatter: Rust-based, 540+ rules, type-aware linting, GritQL plugins, v2.4 current.
+- [[biome-configuration]] -- biome.json schema: extends, files, VCS, linter/formatter/assist options, language-specific settings, overrides, globs.
+- [[biome-cli]] -- CLI commands (check, lint, format, ci, migrate, search), flags, reporters, daemon, logging.
+- [[biome-linter]] -- Linter rule groups, fix categories, domains, scanner, suppression comments.
+- [[biome-formatter]] -- Formatter options and defaults, language-specific settings, suppression, .editorconfig.
+- [[biome-assist]] -- Assist actions: import sorting, useSortedKeys, IDE code actions, CLI enforcement.
+- [[biome-migration]] -- Migration from ESLint/Prettier: commands, config transforms, supported plugins, limitations.
+- [[biome-editor-integration]] -- VS Code/IntelliJ/Zed setup, settings, code actions on save, multi-root workspaces.
+- [[biome-ci-hooks]] -- CI integration (biome ci, GitHub Actions, GitLab) and git hooks (Lefthook, Husky, pre-commit).
+- [[prettier-vs-biome]] -- Formatting differences between Prettier and Biome, the 96%+ compatibility gap, and editor conflict resolution.
+- [[conform-nvim]] -- Neovim formatter plugin: formatters_by_ft, stop_after_first, LSP fallback, Biome+Prettier coexistence.
 - [[oxlint]] -- Oxlint linter from the Oxc project: 865+ rules, ESLint compat, tsgolint, categories, the broader Oxc ecosystem.
 - [[type-aware-linting]] -- Type-aware linting: typescript-eslint (59 rules), Biotype (~75-85%), tsgolint (43 rules), performance tradeoffs.
 - [[typescript-type-system]] -- Structural typing, narrowing, type operators, conditional/mapped/template literal types, type compatibility, inference.
