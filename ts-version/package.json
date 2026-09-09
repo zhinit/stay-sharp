@@ -8,7 +8,8 @@
 	],
 	"scripts": {
 		"lint": "biome check .",
-		"test": "bun test"
+		"test": "bun test",
+		"cli": "bun packages/cli/index.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.12",
