@@ -1,11 +1,24 @@
-import { getChatResponse } from "./input-chat.ts";
+import { classifyQuestionType, getChatResponse } from "./input-chat.ts";
 import { getUserInput } from "./input-user.ts";
 
 async function main() {
-	const questionType = await getUserInput(
+	const provider = process.env.STAYSHARP_PROVIDER ?? "";
+	const apiUrl = process.env.STAYSHARP_API_URL ?? "";
+	const apiKey = process.env.STAYSHARP_API_KEY ?? "";
+	const model = process.env.STAYSHARP_MODEL ?? "";
+
+	const questionTypeRaw = await getUserInput(
 		"Do you want to write code, read code, or keep it conceptual?",
 		false,
 	);
+	const questionTypePromise = classifyQuestionType(
+		provider,
+		apiUrl,
+		apiKey,
+		model,
+		questionTypeRaw,
+	);
+
 	const questionTopic = await getUserInput(
 		"What topic(s) do you want to practice?",
 		false,
@@ -16,18 +29,37 @@ async function main() {
 	);
 	console.log("--------------------------------");
 
-	const provider = process.env.STAYSHARP_PROVIDER ?? "";
-	const apiUrl = process.env.STAYSHARP_API_URL ?? "";
-	const apiKey = process.env.STAYSHARP_API_KEY ?? "";
-	const model = process.env.STAYSHARP_MODEL ?? "";
-
-	const initialPrompt = `
-    Ask me a question where the type of question will be ${questionType}.
-    The topic should be related to ${questionTopic}.
-    The level of difficulty should be ${questionDifficulty},
-    The answer to this should only be a few lines, 
-    or a one liner if appropriate.
-  `;
+	let initialPrompt = "";
+	const questionType = await questionTypePromise;
+	switch (questionType) {
+		case "w":
+			initialPrompt = `
+        Ask me to write some code.
+        It should be a coding question related to ${questionTopic}.
+        The level of difficulty should be ${questionDifficulty},
+        The answer to this should only be a few lines, 
+        or a one liner if appropriate.
+      `;
+			break;
+		case "r":
+			initialPrompt = `
+        Ask me a question where you will write show me a code snippet that has already been written.
+        It should be related to ${questionTopic}.
+        I will read through the code snippet and describe the output,
+        say if it will result in an error,
+        or spot any subtle bugs.
+        The level of difficulty should be ${questionDifficulty},
+      `;
+			break;
+		default:
+			initialPrompt = `
+        Ask me a conceptual question relating to ${questionTopic}
+        The level of difficulty should be ${questionDifficulty},
+      `;
+			break;
+	}
+	initialPrompt +=
+		"Please be concise. Shorter is better. Do not restate what we are doing.";
 
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: initialPrompt });
@@ -54,7 +86,7 @@ async function main() {
 		const gradingPrompt =
 			"\
       Please grade this and give feedback.\
-      If the user got the answer corrct, tell them good job.\
+      If the user got the answer correct, tell them good job.\
       If the user did not get the answer correct, \
       tell them what they did right, what they did wrong, and what topics did they not understand.\
       Respond in a friendly tone. Please be brief. Short consise responses are best.\
