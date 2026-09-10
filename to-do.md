@@ -17,7 +17,7 @@
 ## Improvements
 - [x] Esc cancels in-flight request, keeps editor text
 - [x] Mode parsing
-- [ ] Pre-generate next question in background
+- [x] Pre-generate next question in background
 - [ ] Few-shot examples in prompts
 - [ ] Error handling
 - [ ] README

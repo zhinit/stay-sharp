@@ -42,24 +42,39 @@ async function main() {
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: initialPrompt });
 
+	let question = await getChatResponse(
+		provider,
+		apiUrl,
+		apiKey,
+		model,
+		messages,
+	);
+	while (question === "Aborted") {
+		question = await getChatResponse(provider, apiUrl, apiKey, model, messages);
+	}
+
+	let nextQuestionPromise: Promise<string> = Promise.resolve("");
+
+	let firstLoopFlag = true;
 	while (true) {
-		let question = await getChatResponse(
+		question = firstLoopFlag ? question : await nextQuestionPromise;
+		messages.push({ role: "assistant", content: question });
+
+		nextQuestionPromise = getChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
 			model,
-			messages,
+			[
+				...messages,
+				{
+					role: "user",
+					content:
+						"Ask me another question. Do not repeat any previous questions.",
+				},
+			],
+			true,
 		);
-		while (question === "Aborted") {
-			question = await getChatResponse(
-				provider,
-				apiUrl,
-				apiKey,
-				model,
-				messages,
-			);
-		}
-		messages.push({ role: "assistant", content: question });
 
 		const gradingPrompt =
 			"\
@@ -123,7 +138,7 @@ async function main() {
 			console.log(followUpAnswer);
 			console.log("--------------------------------");
 		}
-		messages.push({ role: "user", content: "Ask me another question." });
+		firstLoopFlag = false;
 	}
 }
 

@@ -137,19 +137,24 @@ export async function getChatResponse(
 	apiKey: string,
 	model: string,
 	messages: { role: string; content: string }[],
+	silentFlag = false,
 ): Promise<string> {
-	const spinnerId = startSpinner();
-
-	const abortHandler = (data: number[]) => {
-		// 27 is escape key
-		if (data[0] === 27) {
-			abortController.abort();
-		}
-	};
+	let spinnerId: Timer | undefined;
+	let abortHandler: ((data: number[]) => void) | undefined;
 	const abortController = new AbortController();
-	process.stdin.setRawMode(true);
-	process.stdin.resume();
-	process.stdin.on("data", abortHandler);
+	if (!silentFlag) {
+		spinnerId = startSpinner();
+
+		abortHandler = (data: number[]) => {
+			// 27 is escape key
+			if (data[0] === 27) {
+				abortController.abort();
+			}
+		};
+		process.stdin.setRawMode(true);
+		process.stdin.resume();
+		process.stdin.on("data", abortHandler);
+	}
 
 	try {
 		if (provider === "claude") {
@@ -204,9 +209,11 @@ export async function getChatResponse(
 			? "Aborted"
 			: "Request failed without status code";
 	} finally {
-		process.stdout.write("\r\x1b[K");
-		clearInterval(spinnerId);
-		process.stdin.setRawMode(false);
-		process.stdin.removeListener("data", abortHandler);
+		if (!silentFlag) {
+			process.stdout.write("\r\x1b[K");
+			clearInterval(spinnerId);
+			process.stdin.setRawMode(false);
+			if (abortHandler) process.stdin.removeListener("data", abortHandler);
+		}
 	}
 }
