@@ -17,16 +17,16 @@ function startSpinner(): Timer {
 	return intervalId;
 }
 
-export async function createInitialPrompt(
+export async function createSystemPrompt(
 	questionTypePromise: Promise<string>,
 	questionTopic: string,
 	questionDifficulty: string,
 ): Promise<string> {
-	let initialPrompt = "";
+	let systemPrompt = "";
 	const questionType = await questionTypePromise;
 	switch (questionType) {
 		case "w":
-			initialPrompt = `
+			systemPrompt = `
         Ask me to write some code.
         It should be a coding question related to ${questionTopic}.
         The level of difficulty should be ${questionDifficulty},
@@ -35,7 +35,7 @@ export async function createInitialPrompt(
       `;
 			break;
 		case "r":
-			initialPrompt = `
+			systemPrompt = `
         Ask me a question where you will write show me a code snippet that has already been written.
         It should be related to ${questionTopic}.
         I will read through the code snippet and describe the output,
@@ -45,16 +45,16 @@ export async function createInitialPrompt(
       `;
 			break;
 		default:
-			initialPrompt = `
+			systemPrompt = `
         Ask me a conceptual question relating to ${questionTopic}
         The level of difficulty should be ${questionDifficulty},
       `;
 			break;
 	}
-	initialPrompt +=
+	systemPrompt +=
 		"Please be concise. Shorter is better. Do not restate what we are doing.";
 
-	return initialPrompt;
+	return systemPrompt;
 }
 
 export async function classifyQuestionType(
@@ -136,6 +136,7 @@ export async function getChatResponse(
 	apiUrl: string,
 	apiKey: string,
 	model: string,
+	systemPrompt: string,
 	messages: { role: string; content: string }[],
 	silentFlag = false,
 ): Promise<string> {
@@ -162,6 +163,7 @@ export async function getChatResponse(
 				model: model,
 				messages: messages,
 				max_tokens: 1024,
+				system: systemPrompt,
 			};
 			const response = await fetch(`${apiUrl}/v1/messages`, {
 				method: "POST",
@@ -181,6 +183,7 @@ export async function getChatResponse(
 			const payload = (await response.json()) as ClaudeChatResponse;
 			return payload.content[0]?.text ?? "No Response";
 		} else {
+			messages = [{ role: "system", content: systemPrompt }, ...messages];
 			const requestBody = {
 				model: model,
 				messages: messages,

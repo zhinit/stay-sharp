@@ -1,6 +1,6 @@
 import {
 	classifyQuestionType,
-	createInitialPrompt,
+	createSystemPrompt,
 	getChatResponse,
 } from "./input-chat.ts";
 import { getUserInput } from "./input-user.ts";
@@ -33,24 +33,32 @@ async function main() {
 	);
 	console.log("--------------------------------");
 
-	const initialPrompt = await createInitialPrompt(
+	const systemPrompt = await createSystemPrompt(
 		questionTypePromise,
 		questionTopic,
 		questionDifficulty,
 	);
 
 	const messages: { role: string; content: string }[] = [];
-	messages.push({ role: "user", content: initialPrompt });
+	messages.push({ role: "user", content: "Ask me a question." });
 
 	let question = await getChatResponse(
 		provider,
 		apiUrl,
 		apiKey,
 		model,
+		systemPrompt,
 		messages,
 	);
 	while (question === "Aborted") {
-		question = await getChatResponse(provider, apiUrl, apiKey, model, messages);
+		question = await getChatResponse(
+			provider,
+			apiUrl,
+			apiKey,
+			model,
+			systemPrompt,
+			messages,
+		);
 	}
 
 	let nextQuestionPromise: Promise<string> = Promise.resolve("");
@@ -65,6 +73,7 @@ async function main() {
 			apiUrl,
 			apiKey,
 			model,
+			systemPrompt,
 			[
 				...messages,
 				{
@@ -93,13 +102,21 @@ async function main() {
 			apiUrl,
 			apiKey,
 			model,
+			systemPrompt,
 			messages,
 		);
 		while (grade === "Aborted") {
 			messages.pop();
 			answer = await getUserInput(question, true, answer);
 			messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
-			grade = await getChatResponse(provider, apiUrl, apiKey, model, messages);
+			grade = await getChatResponse(
+				provider,
+				apiUrl,
+				apiKey,
+				model,
+				systemPrompt,
+				messages,
+			);
 		}
 
 		messages.push({ role: "assistant", content: grade });
@@ -120,6 +137,7 @@ async function main() {
 				apiUrl,
 				apiKey,
 				model,
+				systemPrompt,
 				messages,
 			);
 			while (followUpAnswer === "Aborted") {
@@ -131,6 +149,7 @@ async function main() {
 					apiUrl,
 					apiKey,
 					model,
+					systemPrompt,
 					messages,
 				);
 			}
