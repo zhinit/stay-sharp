@@ -1,4 +1,8 @@
-import { classifyQuestionType, getChatResponse } from "./input-chat.ts";
+import {
+	classifyQuestionType,
+	createInitialPrompt,
+	getChatResponse,
+} from "./input-chat.ts";
 import { getUserInput } from "./input-user.ts";
 
 async function main() {
@@ -29,37 +33,11 @@ async function main() {
 	);
 	console.log("--------------------------------");
 
-	let initialPrompt = "";
-	const questionType = await questionTypePromise;
-	switch (questionType) {
-		case "w":
-			initialPrompt = `
-        Ask me to write some code.
-        It should be a coding question related to ${questionTopic}.
-        The level of difficulty should be ${questionDifficulty},
-        The answer to this should only be a few lines, 
-        or a one liner if appropriate.
-      `;
-			break;
-		case "r":
-			initialPrompt = `
-        Ask me a question where you will write show me a code snippet that has already been written.
-        It should be related to ${questionTopic}.
-        I will read through the code snippet and describe the output,
-        say if it will result in an error,
-        or spot any subtle bugs.
-        The level of difficulty should be ${questionDifficulty},
-      `;
-			break;
-		default:
-			initialPrompt = `
-        Ask me a conceptual question relating to ${questionTopic}
-        The level of difficulty should be ${questionDifficulty},
-      `;
-			break;
-	}
-	initialPrompt +=
-		"Please be concise. Shorter is better. Do not restate what we are doing.";
+	const initialPrompt = await createInitialPrompt(
+		questionTypePromise,
+		questionTopic,
+		questionDifficulty,
+	);
 
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: initialPrompt });
