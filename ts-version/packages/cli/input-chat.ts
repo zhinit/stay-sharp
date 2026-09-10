@@ -6,6 +6,17 @@ type ClaudeChatResponse = {
 	content: { text: string }[];
 };
 
+function startSpinner(): Timer {
+	const frames = ["🌚", "🌒", "🌓", "🌔", "🌝", "🌖", "🌗", "🌘"];
+	let frame = 0;
+	process.stdout.write(frames[frame] ?? "");
+	const intervalId = setInterval(() => {
+		process.stdout.write("\r\x1b[K");
+		process.stdout.write(frames[++frame % frames.length] ?? "");
+	}, 100);
+	return intervalId;
+}
+
 export async function getChatResponse(
 	provider: string,
 	apiUrl: string,
@@ -13,6 +24,7 @@ export async function getChatResponse(
 	model: string,
 	messages: { role: string; content: string }[],
 ): Promise<string> {
+	const spinnerId = startSpinner();
 	try {
 		if (provider === "claude") {
 			const requestBody = {
@@ -56,9 +68,13 @@ export async function getChatResponse(
 			}
 
 			const payload = (await response.json()) as OpenAIChatResponse;
+
 			return payload.choices[0]?.message?.content ?? "No Response";
 		}
 	} catch {
 		return "Request failed without status code";
+	} finally {
+		process.stdout.write("\r\x1b[K");
+		clearInterval(spinnerId);
 	}
 }

@@ -15,8 +15,8 @@ Keep using the Rust CLI until this one replaces it.
 - [x] set up loop skeleton with follow ups too
 
 ## CLI modularize into cli and core
-- [ ] Multi-line editor with the same keybindings
-- [ ] Loading animation
+- [x] Multi-line editor with the same keybindings
+- [x] Loading animation
 
 ## Web app
 - [ ] Same session flow as the CLI, using `core`
