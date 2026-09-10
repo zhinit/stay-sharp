@@ -18,11 +18,10 @@
 - [x] Esc cancels in-flight request, keeps editor text
 - [x] Mode parsing
 - [x] Pre-generate next question in background
-- [ ] Few-shot examples in prompts
-- [ ] Error handling
-- [ ] README
 
 ## Distribution
+- [ ] Clean ups, Refactors, and Error handling
+- [ ] README
 - [ ] Standalone binaries via GitHub releases
 - [ ] Homebrew formula
 - [ ] npm as fallback
