@@ -90,6 +90,7 @@ function redraw(
 export async function getUserInput(
 	questionForUser: string,
 	hasPartition = true,
+	prevUserInput = "",
 ): Promise<string> {
 	console.log(questionForUser);
 	if (hasPartition) console.log("--------------------------------");
@@ -102,10 +103,10 @@ export async function getUserInput(
 		// with it on, keys like alt+backspace and shift+enter get their own escape codes
 		process.stdout.write("\x1b[>1u");
 
-		let userResponse = "";
-		let cursor = 0;
-		let cursorRow = 0;
+		let userResponse = prevUserInput;
+		let cursor = prevUserInput.length;
 		const termWidth = process.stdout.columns;
+		let cursorRow = redraw(userResponse, cursor, 0, termWidth);
 
 		const handler = (str: string, rawKey: Key & { sequence: string }) => {
 			// if readline did not recognize the sequence, check our kitty table
@@ -118,7 +119,7 @@ export async function getUserInput(
 						cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
 					} else {
 						process.stdin.removeListener("keypress", handler);
-						// \x1b[<u turns the kitty keyboard protocol back off
+						// \x1b[<u turns the kitty keyboard protocol off
 						process.stdout.write("\x1b[<u");
 						process.stdin.setRawMode(false);
 						process.stdout.write("\n");

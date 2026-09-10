@@ -33,13 +33,22 @@ async function main() {
 	messages.push({ role: "user", content: initialPrompt });
 
 	while (true) {
-		const question = await getChatResponse(
+		let question = await getChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
 			model,
 			messages,
 		);
+		while (question === "Aborted") {
+			question = await getChatResponse(
+				provider,
+				apiUrl,
+				apiKey,
+				model,
+				messages,
+			);
+		}
 		messages.push({ role: "assistant", content: question });
 
 		const gradingPrompt =
@@ -51,22 +60,29 @@ async function main() {
       Respond in a friendly tone. Please be brief. Short consise responses are best.\
     ";
 
-		const answer = await getUserInput(question);
+		let answer = await getUserInput(question);
 		messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
 
-		const grade = await getChatResponse(
+		let grade = await getChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
 			model,
 			messages,
 		);
+		while (grade === "Aborted") {
+			messages.pop();
+			answer = await getUserInput(question, true, answer);
+			messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
+			grade = await getChatResponse(provider, apiUrl, apiKey, model, messages);
+		}
+
 		messages.push({ role: "assistant", content: grade });
 		console.log(grade);
 		console.log("--------------------------------");
 
 		while (true) {
-			const followUp = await getUserInput(
+			let followUp = await getUserInput(
 				"Do you have any follow up questions? If not, type 'n' to get the next question",
 			);
 			if (followUp === "n") {
@@ -74,13 +90,25 @@ async function main() {
 			}
 			messages.push({ role: "user", content: followUp });
 
-			const followUpAnswer = await getChatResponse(
+			let followUpAnswer = await getChatResponse(
 				provider,
 				apiUrl,
 				apiKey,
 				model,
 				messages,
 			);
+			while (followUpAnswer === "Aborted") {
+				messages.pop();
+				followUp = await getUserInput(question, true, followUp);
+				messages.push({ role: "user", content: followUp });
+				followUpAnswer = await getChatResponse(
+					provider,
+					apiUrl,
+					apiKey,
+					model,
+					messages,
+				);
+			}
 			messages.push({ role: "assistant", content: followUpAnswer });
 			console.log(followUpAnswer);
 			console.log("--------------------------------");

@@ -1,7 +1,5 @@
 # To do (TypeScript version)
 
-Keep using the Rust CLI until this one replaces it.
-
 ## Setup
 - [x] Bun workspace: `core`, `cli`, `web` packages
 - [x] Linter 
@@ -13,20 +11,14 @@ Keep using the Rust CLI until this one replaces it.
 - [x] pull in env variables
 - [x] wire up llm and grade a question
 - [x] set up loop skeleton with follow ups too
-
-## CLI modularize into cli and core
 - [x] Multi-line editor with the same keybindings
 - [x] Loading animation
 
-## Web app
-- [ ] Same session flow as the CLI, using `core`
-
 ## Improvements
-- [ ] Esc cancels in-flight request, keeps editor text
+- [x] Esc cancels in-flight request, keeps editor text
 - [ ] Mode parsing
 - [ ] Few-shot examples in prompts
 - [ ] Pre-generate next question in background
-- [ ] Stream responses as they arive
 - [ ] Error handling
 - [ ] README
 
@@ -36,11 +28,15 @@ Keep using the Rust CLI until this one replaces it.
 - [ ] npm as fallback
 - [ ] Deploy web app publicly
 
+## Web app
+- [ ] Same session flow as the CLI, using `core`
+
 ## Improvements after distribution
 - [ ] Grader tools: run code, fetch docs, read repo
 - [ ] MCP server, pick topics from current repo
 - [ ] Evals for local models
 - [ ] RAG: quiz me on this PDF or repo
+- [ ] Stream responses as they arive
 
 ## Parked
 - Leetcode-style problems

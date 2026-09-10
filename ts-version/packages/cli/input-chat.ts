@@ -25,6 +25,18 @@ export async function getChatResponse(
 	messages: { role: string; content: string }[],
 ): Promise<string> {
 	const spinnerId = startSpinner();
+
+	const abortHandler = (data: number[]) => {
+		// 27 is escape key
+		if (data[0] === 27) {
+			abortController.abort();
+		}
+	};
+	const abortController = new AbortController();
+	process.stdin.setRawMode(true);
+	process.stdin.resume();
+	process.stdin.on("data", abortHandler);
+
 	try {
 		if (provider === "claude") {
 			const requestBody = {
@@ -40,6 +52,7 @@ export async function getChatResponse(
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(requestBody),
+				signal: abortController.signal,
 			});
 
 			if (!response.ok) {
@@ -61,6 +74,7 @@ export async function getChatResponse(
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(requestBody),
+				signal: abortController.signal,
 			});
 
 			if (!response.ok) {
@@ -71,10 +85,14 @@ export async function getChatResponse(
 
 			return payload.choices[0]?.message?.content ?? "No Response";
 		}
-	} catch {
-		return "Request failed without status code";
+	} catch (error) {
+		return error instanceof Error && error.name === "AbortError"
+			? "Aborted"
+			: "Request failed without status code";
 	} finally {
 		process.stdout.write("\r\x1b[K");
 		clearInterval(spinnerId);
+		process.stdin.setRawMode(false);
+		process.stdin.removeListener("data", abortHandler);
 	}
 }
