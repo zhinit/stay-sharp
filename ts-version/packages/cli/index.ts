@@ -1,3 +1,4 @@
+import { getConfigObject, getConfigPath } from "./config.ts";
 import {
 	classifyQuestionType,
 	createSystemPrompt,
@@ -6,10 +7,8 @@ import {
 import { getUserInput } from "./input-user.ts";
 
 async function main() {
-	const provider = process.env.STAYSHARP_PROVIDER ?? "";
-	const apiUrl = process.env.STAYSHARP_API_URL ?? "";
-	const apiKey = process.env.STAYSHARP_API_KEY ?? "";
-	const model = process.env.STAYSHARP_MODEL ?? "";
+	const configPath = getConfigPath();
+	const { provider, apiUrl, apiKey, model } = await getConfigObject(configPath);
 
 	const questionTypeRaw = await getUserInput(
 		"Do you want to write code, read code, or keep it conceptual?",

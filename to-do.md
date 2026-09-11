@@ -19,6 +19,14 @@
 - [x] Mode parsing
 - [x] Pre-generate next question in background
 
+## Provider and config
+- [x] Config file at ~/.config/staysharp/config.json
+- [ ] Claude provider: shell out to `claude -p`
+- [ ] Ollama provider: use whatever model is available
+- [ ] API key provider: manual setup (url, key, model)
+- [ ] `staysharp config` TUI to change settings with validation
+- [ ] Auto-detect providers on first run (claude CLI, Ollama, manual API key)
+
 ## Distribution
 - [ ] Clean ups, Refactors, and Error handling
 - [ ] README
