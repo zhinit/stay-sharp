@@ -63,13 +63,13 @@ With `target: "bun"`, the `bytecode` option generates precompiled bytecode for f
 
 ## Compile to standalone binary
 
-The `--compile` flag produces a self-contained executable that bundles the runtime with the application (source: deployhq-bun-cheatsheet-2026.md):
+The `--compile` flag produces a self-contained executable that bundles the runtime with the application (source: bun-docs-executables-2026.md):
 
 ```bash
 bun build ./src/cli.ts --compile --outfile ./bin/mycli
 ```
 
-Cross-compilation targets specific platforms (source: deployhq-bun-cheatsheet-2026.md):
+Cross-compilation targets specific platforms via `--target` (source: bun-docs-executables-2026.md):
 
 ```bash
 bun build ./src/cli.ts --compile --target=bun-linux-x64 --outfile ./bin/mycli-linux
@@ -77,7 +77,57 @@ bun build ./src/cli.ts --compile --target=bun-darwin-arm64 --outfile ./bin/mycli
 bun build ./src/cli.ts --compile --target=bun-windows-x64 --outfile ./bin/mycli.exe
 ```
 
+Supported targets: `bun-linux-x64`, `bun-linux-arm64`, `bun-linux-x64-musl`, `bun-linux-arm64-musl`, `bun-windows-x64`, `bun-windows-arm64`, `bun-darwin-x64`, `bun-darwin-arm64` (source: bun-docs-executables-2026.md).
+
 The resulting executables are 50-100 MB with sub-millisecond startup, requiring no external runtime on the target machine (source: deployhq-bun-cheatsheet-2026.md).
+
+### Production optimization
+
+Combine flags for production builds (source: bun-docs-executables-2026.md):
+
+```bash
+bun build --compile --minify --sourcemap --bytecode ./app.ts --outfile myapp
+```
+
+`--bytecode` moves parsing overhead from runtime to build time (approximately 2x faster startup for tools like tsc) (source: bun-docs-executables-2026.md).
+
+### Asset embedding
+
+Embed files into the executable using import attributes (source: bun-docs-executables-2026.md):
+
+```javascript
+import icon from "./icon.png" with { type: "file" };
+import config from "./config.json" with { type: "file" };
+import template from "./email.html" with { type: "text" };
+```
+
+Embed entire directories with `--asset`:
+
+```bash
+bun build --compile ./index.ts --asset ./public --outfile myapp
+```
+
+Embedded files live in the `$bunfs` virtual filesystem (`/$bunfs/root/...` on Unix, `B:\~BUN\...` on Windows). Standard `require.resolve()` and path resolution do not work inside `$bunfs`. Access embedded files through `Bun.embeddedFiles` or the import attribute pattern (source: bun-docs-executables-2026.md).
+
+### Detecting standalone mode
+
+```javascript
+if (Bun.isStandaloneExecutable) {
+  // Running from compiled binary
+}
+```
+
+List embedded files at runtime (source: bun-docs-executables-2026.md):
+
+```javascript
+for (const blob of Bun.embeddedFiles) {
+  console.log(`${blob.name} - ${blob.size} bytes`);
+}
+```
+
+### Unsupported flags
+
+`--compile` does not support `--outdir`, `--public-path`, `--target=node`, or `--no-bundle` (source: bun-docs-executables-2026.md).
 
 ## Build output
 

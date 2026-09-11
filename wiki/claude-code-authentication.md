@@ -39,11 +39,33 @@ This token authenticates with your Claude subscription and requires a Pro, Max, 
 
 This means subscription-based auth and bare mode are mutually exclusive. To use your subscription in headless mode, run `claude -p` without `--bare`, which loads the full project context (hooks, skills, plugins, MCP servers, CLAUDE.md) (source: claude-code-headless-updated-2026.md).
 
+## Anthropic profiles and federation credentials
+
+Credential precedence level 6 covers Anthropic profiles and Workload Identity Federation. A profile is a named credential configuration file in the Anthropic configuration directory (default `~/.config/anthropic` on macOS/Linux, `%APPDATA%\Anthropic` on Windows). Auth mode is either `oidc_federation` (WIF) or `user_oauth` (`ant auth login` or Console sign-in without API key) (source: claude-code-authentication-sept-2026.md).
+
+Claude Code checks three profile sources in order and stops at the first one set:
+
+| Source | Set by | Rank vs. `/login` |
+|---|---|---|
+| Named profile | `ANTHROPIC_PROFILE` | Above (either auth mode) |
+| Federation variables | `ANTHROPIC_FEDERATION_RULE_ID` + `ANTHROPIC_ORGANIZATION_ID` | Above |
+| Active profile | `active_config` file or `default` profile | Above if `oidc_federation`; below working `/login` if `user_oauth` |
+
+The `user_oauth` rule prevents a leftover `ant auth login` profile from overriding the account signed in via `/login`. Profiles are not read in bare mode, Claude Desktop, or cloud sessions (source: claude-code-authentication-sept-2026.md).
+
+Features requiring a claude.ai login (claude.ai connectors, `/schedule`) are not available while a profile or federation credential is selected (source: claude-code-authentication-sept-2026.md).
+
+## Console sign-in without API key
+
+Console users can sign in without creating an API key (v2.1.242+). Claude Code stores the OAuth token as an Anthropic profile. Unlike a static API key, the profile login refreshes automatically; when refresh fails, requests fail with "Anthropic profile login expired" (source: claude-code-authentication-sept-2026.md).
+
+This option is not offered when `forceLoginOrgUUID` is set, `forceLoginMethod` is `"claudeai"` or `"console"`, or when running against a cloud provider (source: claude-code-authentication-sept-2026.md).
+
 ## Subscription auth and the Agent SDK
 
-The Agent SDK uses the same auth infrastructure as Claude Code. `apiKeyHelper`, `ANTHROPIC_API_KEY`, and `ANTHROPIC_AUTH_TOKEN` all apply to the SDK (source: claude-code-authentication-2026.md).
+The official docs state that `apiKeyHelper`, `ANTHROPIC_API_KEY`, and `ANTHROPIC_AUTH_TOKEN` apply to "the CLI and the surfaces that wrap it, including the VS Code extension, the Agent SDK, and GitHub Actions." `CLAUDE_CODE_OAUTH_TOKEN` is not in that explicit list but likely works via the shared auth infrastructure (source: claude-code-authentication-sept-2026.md).
 
-Anthropic does not allow third-party developers to offer claude.ai login or rate limits for Agent SDK products unless previously approved. The quickstart directs developers to use API key authentication (source: claude-agent-sdk-quickstart-updated-2026.md, claude-agent-sdk-overview-2026.md).
+Anthropic does not allow third-party developers to offer claude.ai login or rate limits for Agent SDK products unless previously approved. The quickstart directs developers to use API key authentication (source: claude-agent-sdk-overview-sept-2026.md).
 
 For first-party/personal use, subscription OAuth works with the SDK since it shares Claude Code's auth layer.
 
@@ -106,6 +128,16 @@ If `/login` is run while `CLAUDE_CODE_OAUTH_TOKEN` is set, Claude Code switches 
 ## Login expiry
 
 Access tokens expire after 8 hours. Claude Code refreshes them automatically using the stored refresh token. Logins created with `/login` show a warning three days before expiry. Once expired and unrefreshable, requests fail until you run `/login` again. `/status` shows a `Login: Expired` row when the saved credential is expired (source: claude-code-authentication-2026.md, alif-claude-oauth-api-key-2025.md).
+
+## Rate limit systems
+
+Subscription auth and API key auth hit entirely separate rate-limiting systems (source: claude-code-authentication-sept-2026.md, anthropic-api-rate-limits-sept-2026.md):
+
+**Subscription (OAuth) rate limits** apply to requests made via `/login` credentials or `CLAUDE_CODE_OAUTH_TOKEN`. These use a rolling 5-hour window with a fixed message quota, plus a weekly allowance on paid plans. Anthropic does not publish exact numbers for these limits. Hitting the limit yields a cooldown period.
+
+**Console/API rate limits** apply to requests made via `ANTHROPIC_API_KEY` from the Claude Console. These are measured in RPM, ITPM, and OTPM per model class, organized into usage tiers (Start, Build, Scale, Custom). Limits use a token bucket algorithm with continuous replenishment. Spend caps apply per calendar month ($500 Start, $1,000 Build, $200,000 Scale). Cached input tokens (except on Haiku 3.5) do not count toward ITPM (source: anthropic-api-rate-limits-sept-2026.md).
+
+The two systems do not interact. A user can be rate-limited on their subscription while having ample API key headroom, or vice versa.
 
 ## Related pages
 

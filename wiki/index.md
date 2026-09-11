@@ -3,10 +3,12 @@
 - [[claude-code-hooks]] -- Hook events, handler types, matchers, lifecycle, and SDK callback hooks for executing custom code at specific points in Claude Code sessions.
 - [[claude-code-plugins]] -- Plugin structure, components, manifest schema, installation scopes, marketplaces, and distribution.
 - [[claude-agent-sdk]] -- The Agent SDK for building standalone agents in Python/TypeScript with the full Claude Code agent loop, tools, sessions, and permissions.
+- [[claude-agent-sdk-runtime]] -- SDK runtime costs: ~205 MB install (5 MB wrapper + ~200 MB native binary), 12s cold subprocess startup, `startup()` pre-warming, Bun compatibility, `bun build --compile` workaround, serverless size blocker.
 - [[claude-code-skills]] -- Skills as prompt-based instructions loaded into a session, including dynamic context injection, subagent execution, and the Agent Skills open standard.
 - [[claude-code-authentication]] -- Authentication methods, credential precedence chain, subscription vs API key, `setup-token`, bare mode auth restrictions, credential storage format, and the paused Agent SDK credit pool.
 - [[claude-code-oauth-flow]] -- OAuth PKCE flow internals: endpoints, client ID, scopes, token exchange, refresh, and the `ant` CLI flow.
-- [[claude-code-token-api-reuse]] -- Using Claude Code OAuth tokens to call `/v1/messages` directly: extraction, curl examples, refresh, and caveats.
+- [[claude-code-token-api-reuse]] -- Using Claude Code OAuth tokens to call `/v1/messages` directly: required headers (`anthropic-beta`, identity block), billing classifier behavior, 429 variants, enforcement timeline, extraction, refresh, and caveats.
+- [[anthropic-api-rate-limits]] -- Anthropic Messages API rate limiting: RPM/ITPM/OTPM limits, spend caps, response headers, 429 error variants (rate limit vs spend cap vs billing misclassification), SDK retry behavior.
 - [[claude-code-headless]] -- Running Claude Code non-interactively as a subprocess with `claude -p`, bare mode, output formats, and piping.
 - [[claude-code-subagents]] -- In-session subagents: built-in types, custom definitions, foreground/background execution, forks, tool filtering, nesting, and concurrency limits.
 - [[claude-code-agent-view]] -- Agent view UI for managing background sessions: dispatching, monitoring, supervisor daemon, worktree isolation, and shell management commands.
