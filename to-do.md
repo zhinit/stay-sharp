@@ -21,7 +21,7 @@
 
 ## Provider and config
 - [x] Config file at ~/.config/staysharp/config.json
-- [ ] Claude provider: shell out to `claude -p`
+- [x] Claude provider: shell out to `claude -p`
 - [ ] Ollama provider: use whatever model is available
 - [ ] API key provider: manual setup (url, key, model)
 - [ ] `staysharp config` TUI to change settings with validation

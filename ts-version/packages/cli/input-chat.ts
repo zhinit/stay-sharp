@@ -78,7 +78,7 @@ export async function classifyQuestionType(
 	messages.push({ role: "user", content: message });
 
 	try {
-		if (provider === "claude") {
+		if (provider === "claude-api") {
 			const requestBody = {
 				model: model,
 				messages: messages,
@@ -100,6 +100,28 @@ export async function classifyQuestionType(
 
 			const payload = (await response.json()) as ClaudeChatResponse;
 			return payload.content[0]?.text ?? "No Response";
+		} else if (provider === "claude-cli" || provider === "codex-cli") {
+			const termCmd = provider === "claude-cli" ? "claude" : "codex";
+			const termArg = provider === "claude-cli" ? "-p" : "exec";
+			try {
+				const proc = Bun.spawn([termCmd, termArg, message], {
+					stderr: "pipe",
+				});
+
+				const [response, exitCode] = await Promise.all([
+					proc.stdout.text(),
+					proc.exited,
+				]);
+
+				if (exitCode !== 0)
+					return `'claude -p' failed during execution: ${response.trim()}`;
+
+				return response.trim()[0] ?? "c";
+			} catch (error) {
+				return error instanceof Error
+					? `Failed to run command '${termCmd} ${termArg}': ${error.message}`
+					: `Failed to run command '${termCmd} ${termArg}"`;
+			}
 		} else {
 			const requestBody = {
 				model: model,
@@ -158,7 +180,7 @@ export async function getChatResponse(
 	}
 
 	try {
-		if (provider === "claude") {
+		if (provider === "claude-api") {
 			const requestBody = {
 				model: model,
 				messages: messages,
@@ -182,6 +204,30 @@ export async function getChatResponse(
 
 			const payload = (await response.json()) as ClaudeChatResponse;
 			return payload.content[0]?.text ?? "No Response";
+		} else if (provider === "claude-cli" || provider === "codex-cli") {
+			const termCmd = provider === "claude-cli" ? "claude" : "codex";
+			const termArg = provider === "claude-cli" ? "-p" : "exec";
+			try {
+				messages = [{ role: "system", content: systemPrompt }, ...messages];
+				const proc = Bun.spawn([termCmd, termArg, JSON.stringify(messages)], {
+					signal: abortController.signal,
+					stderr: "pipe",
+				});
+
+				const [response, exitCode] = await Promise.all([
+					proc.stdout.text(),
+					proc.exited,
+				]);
+
+				if (exitCode !== 0)
+					return `'${termCmd} ${termArg}' failed during execution: ${response.trim()}`;
+
+				return response.trim();
+			} catch (error) {
+				return error instanceof Error
+					? `Failed to run command '${termCmd} ${termArg}': ${error.message}`
+					: `Failed to run command '${termCmd} ${termArg}'`;
+			}
 		} else {
 			messages = [{ role: "system", content: systemPrompt }, ...messages];
 			const requestBody = {
