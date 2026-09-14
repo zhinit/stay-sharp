@@ -1,4 +1,9 @@
-import { getConfigObject, getConfigPath } from "./config.ts";
+import {
+	getConfigObject,
+	getConfigPath,
+	getHasConfig,
+	runConfigWizard,
+} from "./config.ts";
 import {
 	classifyQuestionType,
 	createSystemPrompt,
@@ -8,6 +13,11 @@ import { getUserInput } from "./input-user.ts";
 
 async function main() {
 	const configPath = getConfigPath();
+	const hasConfig = await getHasConfig(configPath);
+	if (!hasConfig) {
+		await runConfigWizard();
+	}
+
 	const { provider, apiUrl, apiKey, model } = await getConfigObject(configPath);
 
 	const questionTypeRaw = await getUserInput(
