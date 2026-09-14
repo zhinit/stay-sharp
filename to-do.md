@@ -5,7 +5,7 @@
 - [x] Claude provider: shell out to `claude -p`
 - [x] Set up wizard skeleton
 - [x] provide a way to enter the wizard
-- [ ] run smoke test at end of wizard to confirm it worked
+- [x] run smoke test at end of wizard to confirm it worked
 - [ ] Add local llm option as provider. offer to install
 
 ## Distribution

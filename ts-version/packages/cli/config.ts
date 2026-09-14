@@ -1,5 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { getChatResponse } from "./input-chat.ts";
 
 export type Config = {
 	provider: string;
@@ -91,8 +92,34 @@ export async function runConfigWizard() {
 			break;
 	}
 
-	const configFilePath = getConfigPath();
-	await Bun.write(configFilePath, JSON.stringify(config));
+	const testChatResponse = await getChatResponse(
+		config.provider,
+		config.apiUrl,
+		config.apiKey,
+		config.model,
+		"test system prompt",
+		[
+			{
+				role: "user",
+				content:
+					"This is a test. If you successfully recieved this message,\
+          simply return 'Y' and nothing else",
+			},
+		],
+	);
+
+	if (testChatResponse === "Y") {
+		const configFilePath = getConfigPath();
+		await Bun.write(configFilePath, JSON.stringify(config));
+		console.log(`LLM successfully connected.\n\
+                Config file saved to ${configFilePath}\n\
+                --------------------------------`);
+	} else {
+		console.log(`Failed to recieve a valid message from the llm.\n\
+                The message received was:\n\
+                ${testChatResponse}`);
+		process.exit();
+	}
 
 	return;
 }
