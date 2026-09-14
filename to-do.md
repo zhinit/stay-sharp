@@ -1,31 +1,12 @@
 # To do (TypeScript version)
 
-## Setup
-- [x] Bun workspace: `core`, `cli`, `web` packages
-- [x] Linter 
-- [x] Tests
-- [x] CI
-
-## Match rust version
-- [x] start up questions
-- [x] pull in env variables
-- [x] wire up llm and grade a question
-- [x] set up loop skeleton with follow ups too
-- [x] Multi-line editor with the same keybindings
-- [x] Loading animation
-
-## Improvements
-- [x] Esc cancels in-flight request, keeps editor text
-- [x] Mode parsing
-- [x] Pre-generate next question in background
-
 ## Provider and config
 - [x] Config file at ~/.config/staysharp/config.json
 - [x] Claude provider: shell out to `claude -p`
-- [ ] Ollama provider: use whatever model is available
-- [ ] API key provider: manual setup (url, key, model)
-- [ ] `staysharp config` TUI to change settings with validation
-- [ ] Auto-detect providers on first run (claude CLI, Ollama, manual API key)
+- [x] Set up wizard skeleton
+- [x] provide a way to enter the wizard
+- [ ] run smoke test at end of wizard to confirm it worked
+- [ ] Add local llm option as provider. offer to install
 
 ## Distribution
 - [ ] Clean ups, Refactors, and Error handling

@@ -12,9 +12,16 @@ import {
 import { getUserInput } from "./input-user.ts";
 
 async function main() {
+	const args = Bun.argv.slice(2);
+	let wizardFlag = false;
+	const wizardFlags = new Set(["-w", "--wizard", "-c", "--config"]);
+	for (const arg of args) {
+		if (wizardFlags.has(arg)) wizardFlag = true;
+	}
+
 	const configPath = getConfigPath();
 	const hasConfig = await getHasConfig(configPath);
-	if (!hasConfig) {
+	if (!hasConfig || wizardFlag) {
 		await runConfigWizard();
 	}
 
