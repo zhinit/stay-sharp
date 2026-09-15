@@ -6,7 +6,7 @@
 - [x] Set up wizard skeleton
 - [x] provide a way to enter the wizard
 - [x] run smoke test at end of wizard to confirm it worked
-- [ ] Add local llm option as provider. offer to install
+- [x] Add local llm option as provider. offer to install
 
 ## Distribution
 - [ ] Clean ups, Refactors, and Error handling

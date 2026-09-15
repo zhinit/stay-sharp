@@ -1,4 +1,4 @@
-import { homedir } from "node:os";
+import { homedir, totalmem } from "node:os";
 import { join } from "node:path";
 import { getChatResponse } from "./input-chat.ts";
 
@@ -57,14 +57,102 @@ function getAndValidateUrl(question: string): string {
 	return url;
 }
 
+function getConfirmation(question: string): boolean {
+	const validAnswers = new Set(["y", "yes", "n", "no"]);
+	let answer = "";
+	while (!validAnswers.has(answer)) {
+		answer = (prompt(question) ?? "").toLowerCase();
+	}
+	return answer === "y" || answer === "yes";
+}
+
+function recommendModel(ramGb: number): string {
+	if (ramGb <= 16) return "gemma4:12b";
+	else return "gemma4:31b";
+}
+
+async function downloadOllama(): Promise<Config> {
+	const osType = process.platform;
+
+	// check for existing ollama and install if it doesnt exist
+	const ollamaPath = Bun.which("ollama");
+	if (!ollamaPath) {
+		console.log("installing ollama");
+		let proc: ReturnType<typeof Bun.spawn> | null = null;
+		switch (osType) {
+			case "darwin": {
+				proc = Bun.spawn([
+					"sh",
+					"-c",
+					"curl -fsSL https://ollama.com/install.sh | sh",
+				]);
+				break;
+			}
+			case "linux": {
+				proc = Bun.spawn([
+					"sh",
+					"-c",
+					"curl -fsSL https://ollama.com/install.sh | sh",
+				]);
+				break;
+			}
+			case "win32": {
+				proc = Bun.spawn([
+					"sh",
+					"-c",
+					"irm https://ollama.com/install.ps1 | iex",
+				]);
+				break;
+			}
+			default:
+				break;
+		}
+		if (!proc) {
+			console.log("installing ollama failed");
+			process.exit();
+		}
+		await proc.exited;
+		if (proc.exitCode !== 0) {
+			console.log("installing ollama failed");
+			process.exit();
+		}
+	} else {
+		console.log("Using existing version of ollama");
+	}
+
+	// check for existiing models and RAM
+	// download appropriate model if needed
+	const ramGb = Math.floor(totalmem() / 1024 ** 3);
+	const model = recommendModel(ramGb);
+	let models = "";
+	if (ollamaPath) {
+		const proc = Bun.spawn(["ollama", "list"]);
+		models = await proc.stdout.text();
+	}
+	if (!models.includes(model)) {
+		const proc = Bun.spawn(["ollama", "pull", model]);
+		const exitCode = await proc.exited;
+		if (exitCode !== 0) {
+			console.log("Failed to download model");
+			process.exit();
+		}
+	}
+	return {
+		provider: "ollama",
+		apiUrl: "http://localhost:11434",
+		apiKey: "na",
+		model: model,
+	};
+}
+
 export async function runConfigWizard() {
 	const llmService = getAndValidateUserInput(
 		"What LLM Service would you like to use?\n\
-    Please respond with 'Subscription', or 'API'",
-		new Set(["subscription", "api"]),
+    Please respond with 'Subscription', 'API', or 'Local'",
+		new Set(["subscription", "api", "local"]),
 	);
 
-	const config: Config = {
+	let config: Config = {
 		provider: "",
 		apiUrl: "",
 		apiKey: "",
@@ -90,6 +178,16 @@ export async function runConfigWizard() {
 			config.apiKey = prompt("What is your API key?") ?? "";
 			config.model = prompt("What is your model name") ?? "";
 			break;
+		case "local": {
+			const isDownloadConfirmed = getConfirmation(
+				"Is it okay to setup ollama and a local llm on your computer?\n\
+        This will be downloaded onto your computer based on your available RAM.\n\
+        If it is not already downloaded.\n\
+        Please responde with 'Yes', or 'No'",
+			);
+			if (!isDownloadConfirmed) process.exit();
+			config = await downloadOllama();
+		}
 	}
 
 	const testChatResponse = await getChatResponse(
