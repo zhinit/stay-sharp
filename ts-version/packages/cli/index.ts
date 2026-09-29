@@ -4,11 +4,14 @@ import {
 	getHasConfig,
 	runConfigWizard,
 } from "./config.ts";
+
 import {
 	classifyQuestionType,
 	createSystemPrompt,
 	getChatResponse,
+	withSpinner,
 } from "./input-chat.ts";
+
 import { getUserInput } from "./input-user.ts";
 
 async function main() {
@@ -58,22 +61,12 @@ async function main() {
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: "Ask me a question." });
 
-	let question = await getChatResponse(
-		provider,
-		apiUrl,
-		apiKey,
-		model,
-		systemPrompt,
-		messages,
+	let question = await withSpinner(
+		getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
 	);
 	while (question === "Aborted") {
-		question = await getChatResponse(
-			provider,
-			apiUrl,
-			apiKey,
-			model,
-			systemPrompt,
-			messages,
+		question = await withSpinner(
+			getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
 		);
 	}
 
@@ -81,7 +74,9 @@ async function main() {
 
 	let firstLoopFlag = true;
 	while (true) {
-		question = firstLoopFlag ? question : await nextQuestionPromise;
+		question = firstLoopFlag
+			? question
+			: await withSpinner(nextQuestionPromise);
 		messages.push({ role: "assistant", content: question });
 
 		nextQuestionPromise = getChatResponse(
@@ -113,25 +108,22 @@ async function main() {
 		let answer = await getUserInput(question);
 		messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
 
-		let grade = await getChatResponse(
-			provider,
-			apiUrl,
-			apiKey,
-			model,
-			systemPrompt,
-			messages,
+		let grade = await withSpinner(
+			getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
 		);
 		while (grade === "Aborted") {
 			messages.pop();
 			answer = await getUserInput(question, true, answer);
 			messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
-			grade = await getChatResponse(
-				provider,
-				apiUrl,
-				apiKey,
-				model,
-				systemPrompt,
-				messages,
+			grade = await withSpinner(
+				getChatResponse(
+					provider,
+					apiUrl,
+					apiKey,
+					model,
+					systemPrompt,
+					messages,
+				),
 			);
 		}
 
@@ -148,25 +140,29 @@ async function main() {
 			}
 			messages.push({ role: "user", content: followUp });
 
-			let followUpAnswer = await getChatResponse(
-				provider,
-				apiUrl,
-				apiKey,
-				model,
-				systemPrompt,
-				messages,
-			);
-			while (followUpAnswer === "Aborted") {
-				messages.pop();
-				followUp = await getUserInput(question, true, followUp);
-				messages.push({ role: "user", content: followUp });
-				followUpAnswer = await getChatResponse(
+			let followUpAnswer = await withSpinner(
+				getChatResponse(
 					provider,
 					apiUrl,
 					apiKey,
 					model,
 					systemPrompt,
 					messages,
+				),
+			);
+			while (followUpAnswer === "Aborted") {
+				messages.pop();
+				followUp = await getUserInput(question, true, followUp);
+				messages.push({ role: "user", content: followUp });
+				followUpAnswer = await withSpinner(
+					getChatResponse(
+						provider,
+						apiUrl,
+						apiKey,
+						model,
+						systemPrompt,
+						messages,
+					),
 				);
 			}
 			messages.push({ role: "assistant", content: followUpAnswer });

@@ -162,12 +162,9 @@ export async function getChatResponse(
 	messages: { role: string; content: string }[],
 	silentFlag = false,
 ): Promise<string> {
-	let spinnerId: Timer | undefined;
 	let abortHandler: ((data: number[]) => void) | undefined;
 	const abortController = new AbortController();
 	if (!silentFlag) {
-		spinnerId = startSpinner();
-
 		abortHandler = (data: number[]) => {
 			// 27 is escape key
 			if (data[0] === 27) {
@@ -260,9 +257,18 @@ export async function getChatResponse(
 	} finally {
 		if (!silentFlag) {
 			process.stdout.write("\r\x1b[K");
-			clearInterval(spinnerId);
 			process.stdin.setRawMode(false);
 			if (abortHandler) process.stdin.removeListener("data", abortHandler);
 		}
+	}
+}
+
+export async function withSpinner<T>(p: Promise<T>): Promise<T> {
+	const spinnerId = startSpinner();
+	try {
+		return await p;
+	} finally {
+		clearInterval(spinnerId);
+		process.stdout.write("\r\x1b[k"); // clears spinner from tui
 	}
 }
