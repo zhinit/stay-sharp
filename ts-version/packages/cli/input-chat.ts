@@ -166,9 +166,18 @@ export async function getChatResponse(
 	const abortController = new AbortController();
 	if (!silentFlag) {
 		abortHandler = (data: number[]) => {
-			// 27 is escape key
-			if (data[0] === 27) {
-				abortController.abort();
+			switch (data[0]) {
+				case 27: {
+					// 27 is escape key
+					abortController.abort();
+					break;
+				}
+				case 3: {
+					// 3 is ctrl c
+					abortController.abort();
+					process.stdin.setRawMode(false);
+					process.exit(0);
+				}
 			}
 		};
 		process.stdin.setRawMode(true);

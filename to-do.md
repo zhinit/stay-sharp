@@ -10,14 +10,14 @@
 
 ## Distribution
 - [ ] Clean ups, Refactors, and Error handling
-  - [ ] Dedupe provider call logic in input-chat.ts
-  - [ ] Replace magic error strings ("Aborted") with real result type
-  - [ ] Extract abort-retry helper in index.ts main loop
-  - [ ] Dedupe input-user.ts, guard terminal raw mode with try/finally
-  - [ ] config.ts: validate config file, fix win32 ollama install, exit codes
-  - [ ] Union type for provider, shared Message type
-  - [ ] Top-level try/catch in main()
-  - [ ] Fix typos in user-facing text
+  - [ ] Keep provider errors out of questions and grades
+  - [ ] Make cancellation, Ctrl+C, and terminal cleanup reliable
+  - [ ] Validate config and verify every advertised provider
+  - [ ] Provide one tested install path and a usable README
+  - [ ] Fix the six TypeScript errors and add tests that exercise the app
+  - [ ] Separate provider calls from terminal input
+  - [ ] Consolidate retry logic
+  - [ ] Replace LLM mode selection with a menu
 - [ ] README
 - [ ] Standalone binaries via GitHub releases
 - [ ] Homebrew formula
