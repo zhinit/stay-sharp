@@ -52,6 +52,6 @@ Endless possibilities!
 
 
 ## Difficulty Level
-Choose any difficulty level you want.
+Choose any difficulty level you want. But it is recommended to say easy medium or hard.
 
 
