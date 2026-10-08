@@ -169,7 +169,7 @@ export async function getChatResponse(
 			switch (data[0]) {
 				case 27: {
 					// 27 is escape key
-					abortController.abort();
+					if (data.length === 1) abortController.abort();
 					break;
 				}
 				case 3: {
