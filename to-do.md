@@ -11,8 +11,8 @@
 ## Distribution
 - [ ] Clean ups, Refactors, and Error handling
   - [x] Make cancellation, Ctrl+C, and terminal cleanup reliable
-  - [ ] Validate config and verify every advertised provider
-  - [ ] Provide one tested install path and a usable README
+  - [x] verify both codex and claude monthlys work
+  - [x] Provide one tested install path and a usable README
   - [ ] Fix the six TypeScript errors and add tests that exercise the app
   - [ ] Separate provider calls from terminal input
   - [ ] Consolidate retry logic

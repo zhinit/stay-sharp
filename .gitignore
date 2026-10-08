@@ -24,3 +24,8 @@ dist/
 # OS
 .DS_Store
 .gstack/
+
+# other versions
+python_version/
+skill_version/
+rust_version/
