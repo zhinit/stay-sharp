@@ -98,8 +98,9 @@ async function downloadOllama(): Promise<Config> {
 			}
 			case "win32": {
 				proc = Bun.spawn([
-					"sh",
-					"-c",
+					"powershell.exe",
+					"-NoProfile",
+					"-Command",
 					"irm https://ollama.com/install.ps1 | iex",
 				]);
 				break;
