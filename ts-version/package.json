@@ -10,7 +10,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"lint": "biome check .",
+		"lint": "biome check . && tsc --noemit",
 		"test": "bun test",
 		"cli": "bun packages/cli/index.ts"
 	},

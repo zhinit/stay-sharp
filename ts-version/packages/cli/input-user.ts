@@ -12,7 +12,7 @@ const KITTY_KEYS: Record<string, Key> = {
 	"\x1b[13;2u": { name: "return", ctrl: false, meta: false, shift: true },
 };
 
-function isWordBoundary(ch: string): boolean {
+function isWordBoundary(ch: string | undefined): boolean {
 	return ch === " " || ch === "\n";
 }
 
