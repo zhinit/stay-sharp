@@ -8,20 +8,15 @@ Learning a new topic and just want practice to hammer in the concepts? Run stay 
 
 # Installation
 
-Homebrew installation is coming soon.
+## macOS / Linux
 
-For now, build from source on macOS or Linux. You will need Git and Bun installed.
+For macOS or Linux, run this in your terminal:
 
 ```sh
-git clone https://github.com/zhinit/stay-sharp.git
-cd stay-sharp/ts-version
-bun install
-bun build --compile packages/cli/index.ts --outfile dist/stay-sharp
-mkdir -p ~/.local/bin
-cp dist/stay-sharp ~/.local/bin/stay-sharp
+curl -fsSL https://raw.githubusercontent.com/zhinit/stay-sharp/main/install.sh | sh
 ```
 
-Add this line to `~/.zshrc` (or `~/.bashrc` if you use Bash):
+If the installer tells you to update your PATH, add this line to `~/.zshrc` (or `~/.bashrc` if you use Bash):
 
 ```sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -29,7 +24,39 @@ export PATH="$HOME/.local/bin:$PATH"
 
 Open a new terminal.
 
+## Windows
+
+For Windows, run this in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/zhinit/stay-sharp/main/install.ps1 | iex
+```
+
+## Build from source
+
+You will need Git and Bun installed. Run this in your terminal:
+
+```sh
+git clone https://github.com/zhinit/stay-sharp.git
+cd stay-sharp/ts-version
+bun install
+bun run build
+```
+
+The executable will be in `dist/stay-sharp` (`dist/stay-sharp.exe` on Windows). You can run it from there or move it to a directory on your PATH.
+
 Once installed, run `stay-sharp` in the terminal.
+
+# The configuration wizard
+
+The first time you run stay-sharp, a configuration wizard will run. You can choose to use a local LLM, an API, or a monthly Claude/Codex membership. **I would recommend using a local llm** to avoid wasting your tokens. Subscription mode uses the installed Claude or Codex CLI, so you will need it installed and signed in. This should work but may not be as good as using an API directly. Note that the Claude and Codex API costs are expensive but a local llm is essentially free.
+
+To run the configuration wizard when you like just add any of the 4 flags after stay-sharp as shown below.
+
+- stay-sharp -w
+- stay-sharp -c
+- stay-sharp --wizard
+- stay-sharp --config
 
 # Using the CLI
 ## Learning Modes
@@ -54,4 +81,9 @@ Endless possibilities!
 ## Difficulty Level
 Choose any difficulty level you want. But it is recommended to say easy medium or hard.
 
+# AI Disclosure
 
+In the spirit of what this CLI is, I have handcoded the vast majority of this myself, with the following exceptions:
+
+- I used the build and learn command for AI guidance to teach me how to do things while I wrote the code.
+- I used Codex to write release.yml and the install scripts.
