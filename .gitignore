@@ -29,3 +29,6 @@ dist/
 python_version/
 skill_version/
 rust_version/
+
+# misc
+to-do.md
