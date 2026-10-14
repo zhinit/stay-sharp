@@ -6,6 +6,8 @@ Waiting for your agent to finish working? Run stay sharp in the terminal to shar
 
 Learning a new topic and just want practice to hammer in the concepts? Run stay sharp in the terminal to harden the skills you are learning!
 
+Once installed, run `stay-sharp` in the terminal to get going.
+
 # Installation
 
 ## macOS / Linux
@@ -44,8 +46,6 @@ bun run build
 ```
 
 The executable will be in `dist/stay-sharp` (`dist/stay-sharp.exe` on Windows). You can run it from there or move it to a directory on your PATH.
-
-Once installed, run `stay-sharp` in the terminal.
 
 # The configuration wizard
 
