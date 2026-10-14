@@ -12,7 +12,8 @@
 	"scripts": {
 		"lint": "biome check . && tsc --noemit",
 		"test": "bun test",
-		"cli": "bun packages/cli/index.ts"
+		"cli": "bun packages/cli/index.ts",
+		"build": "bun build --compile packages/cli/index.ts --outfile dist/stay-sharp"
 	},
 	"type": "module",
 	"workspaces": [

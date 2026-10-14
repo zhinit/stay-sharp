@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: ts-version
+
+      - name: Check code
+        run: bun run lint && bun test
+        working-directory: ts-version
+
+      - name: Build and package executables
+        working-directory: ts-version
+        run: |
+          mkdir -p dist/packages
+          for target in bun-darwin-arm64 bun-darwin-x64 bun-windows-arm64 bun-windows-x64 bun-linux-arm64 bun-linux-x64; do
+            mkdir -p "dist/$target"
+            bun build --compile --target="$target" packages/cli/index.ts --outfile "dist/$target/stay-sharp"
+            if [[ "$target" == bun-windows-* ]]; then
+              zip -j "dist/packages/stay-sharp-$target.zip" "dist/$target/stay-sharp.exe"
+            else
+              tar -czf "dist/packages/stay-sharp-$target.tar.gz" -C "dist/$target" stay-sharp
+            fi
+          done
+
+      - name: Generate checksums
+        run: sha256sum *.tar.gz *.zip > checksums.txt
+        working-directory: ts-version/dist/packages
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" ts-version/dist/packages/* --verify-tag --generate-notes
