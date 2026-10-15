@@ -35,6 +35,12 @@ function getAndValidateUserInput(
 	let answer = "";
 	while (!validAnswers.has(answer)) {
 		answer = (prompt(question) ?? "").toLowerCase();
+		if (!validAnswers.has(answer)) {
+			console.log(
+				`Please enter a valid response. The (case insensitive) choices are ${[...validAnswers].join(", ")}`,
+			);
+			console.log("--------------------------------");
+		}
 	}
 	return answer;
 }
@@ -52,7 +58,10 @@ function getAndValidateUrl(question: string): string {
 	let url = "";
 	while (!isValidUrl(url)) {
 		url = prompt(question) ?? "";
-		if (!isValidUrl(url)) console.log("Sorry, that is not a valid url");
+		if (!isValidUrl(url)) {
+			console.log("Sorry, that is not a valid url");
+			console.log("--------------------------------");
+		}
 	}
 	return url;
 }
@@ -62,6 +71,12 @@ function getConfirmation(question: string): boolean {
 	let answer = "";
 	while (!validAnswers.has(answer)) {
 		answer = (prompt(question) ?? "").toLowerCase();
+		if (!validAnswers.has(answer)) {
+			console.log(
+				`Please enter a valid response. The (case insensitive) choices are ${[...validAnswers].join(", ")}`,
+			);
+			console.log("--------------------------------");
+		}
 	}
 	return answer === "y" || answer === "yes";
 }
@@ -148,10 +163,14 @@ async function downloadOllama(): Promise<Config> {
 
 export async function runConfigWizard() {
 	const llmService = getAndValidateUserInput(
-		"What LLM Service would you like to use?\n\
-    Please respond with 'Subscription', 'API', or 'Local'",
+		[
+			"What LLM Service would you like to use?",
+			"Please respond with 'Subscription', 'API', or 'Local'",
+		].join("\n"),
 		new Set(["subscription", "api", "local"]),
 	);
+
+	console.log("--------------------------------");
 
 	let config: Config = {
 		provider: "",
@@ -162,30 +181,42 @@ export async function runConfigWizard() {
 	switch (llmService) {
 		case "subscription":
 			config.provider = getAndValidateUserInput(
-				"Are you using Claude or Codex?\n\
-        Please response with 'Claude' or 'Codex'",
+				[
+					"Are you using Claude or Codex?",
+					"Please respond with 'Claude' or 'Codex'",
+				].join("\n"),
 				new Set(["claude", "codex"]),
 			);
 			config.provider += "-cli";
+			console.log("--------------------------------");
 			break;
 		case "api":
 			config.provider = getAndValidateUserInput(
-				"Which API are you using?\n\
-        Please response with 'Claude' or 'Other'",
+				[
+					"Which API are you using?",
+					"Please respond with 'Claude' or 'Other'",
+				].join("\n"),
 				new Set(["claude", "other"]),
 			);
 			config.provider += "-api";
+			console.log("--------------------------------");
 			config.apiUrl = getAndValidateUrl("What is your API url?");
+			console.log("--------------------------------");
 			config.apiKey = prompt("What is your API key?") ?? "";
+			console.log("--------------------------------");
 			config.model = prompt("What is your model name") ?? "";
+			console.log("--------------------------------");
 			break;
 		case "local": {
 			const isDownloadConfirmed = getConfirmation(
-				"Is it okay to setup ollama and a local llm on your computer?\n\
-        This will be downloaded onto your computer based on your available RAM.\n\
-        If it is not already downloaded.\n\
-        Please responde with 'Yes', or 'No'",
+				[
+					"Is it okay to set up Ollama and a local LLM on your computer?",
+					"This will be downloaded onto your computer based on your available RAM",
+					"if it is not already downloaded.",
+					"Please respond with 'Yes' or 'No'.",
+				].join("\n"),
 			);
+			console.log("--------------------------------");
 			if (!isDownloadConfirmed) process.exit();
 			config = await downloadOllama();
 		}
@@ -200,9 +231,10 @@ export async function runConfigWizard() {
 		[
 			{
 				role: "user",
-				content:
-					"This is a test. If you successfully recieved this message,\
-          simply return 'Y' and nothing else",
+				content: [
+					"This is a test. If you successfully received this message,",
+					"simply return 'Y' and nothing else",
+				].join(" "),
 			},
 		],
 	);
@@ -210,13 +242,21 @@ export async function runConfigWizard() {
 	if (testChatResponse === "Y") {
 		const configFilePath = getConfigPath();
 		await Bun.write(configFilePath, JSON.stringify(config));
-		console.log(`LLM successfully connected.\n\
-                Config file saved to ${configFilePath}\n\
-                --------------------------------`);
+		console.log(
+			[
+				"LLM successfully connected.",
+				`Config file saved to ${configFilePath}`,
+				"--------------------------------",
+			].join("\n"),
+		);
 	} else {
-		console.log(`Failed to recieve a valid message from the llm.\n\
-                The message received was:\n\
-                ${testChatResponse}`);
+		console.log(
+			[
+				"Failed to receive a valid message from the llm.",
+				"The message received was:",
+				testChatResponse,
+			].join("\n"),
+		);
 		process.exit();
 	}
 
