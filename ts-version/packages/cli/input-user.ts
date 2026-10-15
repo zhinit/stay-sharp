@@ -118,6 +118,7 @@ export async function getUserInput(
 						cursor++;
 						cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
 					} else {
+						redraw(userResponse, userResponse.length, cursorRow, termWidth);
 						process.stdin.removeListener("keypress", handler);
 						// \x1b[<u turns the kitty keyboard protocol off
 						process.stdout.write("\x1b[<u");
