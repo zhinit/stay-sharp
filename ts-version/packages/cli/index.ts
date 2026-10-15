@@ -9,6 +9,7 @@ import {
 	classifyQuestionType,
 	createSystemPrompt,
 	getChatResponse,
+	getUniqueChatResponse,
 	withSpinner,
 } from "./input-chat.ts";
 
@@ -61,6 +62,8 @@ async function main() {
 	const messages: { role: string; content: string }[] = [];
 	messages.push({ role: "user", content: "Ask me a question." });
 
+	const prevQuestions = new Set<string>();
+
 	let question = await withSpinner(
 		getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
 	);
@@ -69,6 +72,7 @@ async function main() {
 			getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
 		);
 	}
+	prevQuestions.add(question);
 
 	let nextQuestionPromise: Promise<string> = Promise.resolve("");
 
@@ -78,8 +82,9 @@ async function main() {
 			? question
 			: await withSpinner(nextQuestionPromise);
 		messages.push({ role: "assistant", content: question });
+		prevQuestions.add(question);
 
-		nextQuestionPromise = getChatResponse(
+		nextQuestionPromise = getUniqueChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
@@ -90,9 +95,10 @@ async function main() {
 				{
 					role: "user",
 					content:
-						"Ask me another question. Do not repeat any previous questions.",
+						"Ask me another question. Read through all previous questions to make sure not to ask a repeat.",
 				},
 			],
+			prevQuestions,
 			true,
 		);
 
@@ -103,6 +109,9 @@ async function main() {
       If the user did not get the answer correct, \
       tell them what they did right, what they did wrong, and what topics did they not understand.\
       Respond in a friendly tone. Please be brief. Short consise responses are best.\
+      If the user responded with idk or similar, tell them it's okay and give a short description of the answer.\
+      If the user responded with nonsense. Tell the user they are hallarious. Be patronizing about it.`\
+      DO NOT GIVE THE USER ANOTHER QUESTION YET UNDER ANY CIRCUMSTANCE OR YOU ARE FIRED!\
     ";
 
 		let answer = await getUserInput(question);
@@ -138,6 +147,7 @@ async function main() {
 			if (followUp === "n") {
 				break;
 			}
+			followUp += ". DO NOT GIVE THE USER ANOTHER QUESTION YET!";
 			messages.push({ role: "user", content: followUp });
 
 			let followUpAnswer = await withSpinner(
