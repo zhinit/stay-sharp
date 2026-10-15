@@ -118,6 +118,7 @@ export async function getUserInput(
 						cursor++;
 						cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
 					} else {
+						redraw(userResponse, userResponse.length, cursorRow, termWidth);
 						process.stdin.removeListener("keypress", handler);
 						// \x1b[<u turns the kitty keyboard protocol off
 						process.stdout.write("\x1b[<u");
@@ -290,6 +291,11 @@ export async function getUserInput(
 					} else if (cursor < userResponse.length) {
 						cursor++;
 					}
+					cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
+					break;
+				case "tab":
+					userResponse = `${userResponse.slice(0, cursor)}    ${userResponse.slice(cursor)}`;
+					cursor += 4;
 					cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
 					break;
 				default:
