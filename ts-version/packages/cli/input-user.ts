@@ -293,6 +293,11 @@ export async function getUserInput(
 					}
 					cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
 					break;
+				case "tab":
+					userResponse = `${userResponse.slice(0, cursor)}    ${userResponse.slice(cursor)}`;
+					cursor += 4;
+					cursorRow = redraw(userResponse, cursor, cursorRow, termWidth);
+					break;
 				default:
 					if (str) {
 						userResponse =
