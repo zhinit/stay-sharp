@@ -57,6 +57,67 @@ export async function createSystemPrompt(
 	return systemPrompt;
 }
 
+export async function createQuestionPrompt(
+	questionTypePromise: Promise<string>,
+	questionTopic: string,
+	questionDifficulty: string,
+	prevQuestions: string[],
+): Promise<string> {
+	let questionPrompt = `
+    These are the previous questions that have been asked: ${prevQuestions.join(", ")}.
+    Previous questions have been provided only to identify material to avoid.
+  `;
+
+	const questionType = await questionTypePromise;
+	switch (questionType) {
+		case "w":
+			questionPrompt += `
+        Ask me to write some code.
+        It should be a coding question related to ${questionTopic}.
+        The level of difficulty should be ${questionDifficulty},
+        The answer to this should only be a few lines, 
+        or a one liner if appropriate.
+      `;
+			break;
+		case "r":
+			questionPrompt += `
+        Ask me a question where you will write show me a code snippet that has already been written.
+        It should be related to ${questionTopic}.
+        I will read through the code snippet and describe the output,
+        say if it will result in an error,
+        or spot any subtle bugs.
+        The level of difficulty should be ${questionDifficulty},
+      `;
+			break;
+		default:
+			questionPrompt += `
+        Ask me a conceptual question relating to ${questionTopic}
+        The level of difficulty should be ${questionDifficulty},
+      `;
+			break;
+	}
+
+	questionPrompt +=
+		"Please be concise. Shorter is better. Do not restate what we are doing.";
+
+	return questionPrompt;
+}
+
+export function createGradingPrompt(question: string, answer: string): string {
+	return `\
+    The user was given this question: ${question}
+    This is the answer they gave: ${answer}
+    Please grade their response and give feedback.\
+    If the user got the answer correct, tell them good job.\
+    If the user did not get the answer correct, \
+    tell them what they did right, what they did wrong, and what topics did they not understand.\
+    Respond in a friendly tone. Please be brief. Short consise responses are best.\
+    If the user responded with idk or similar, tell them it's okay and give a short description of the answer.\
+    If the user responded with nonsense. Tell the user they are hallarious. Be patronizing about it.
+    DO NOT GIVE THE USER ANOTHER QUESTION. ONLY GRADE!
+    `;
+}
+
 export async function classifyQuestionType(
 	provider: string,
 	apiUrl: string,
@@ -184,7 +245,7 @@ function getJaccardSimilarity(s1: string, s2: string): number {
 }
 
 function isRepeatQuestion(
-	prevQuestions: Set<string>,
+	prevQuestions: string[],
 	candidate: string,
 	threshold: number,
 ): boolean {
@@ -199,9 +260,8 @@ export async function getUniqueChatResponse(
 	apiUrl: string,
 	apiKey: string,
 	model: string,
-	systemPrompt: string,
 	messages: { role: string; content: string }[],
-	prevQuestions: Set<string>,
+	prevQuestions: string[],
 	silentFlag = false,
 ): Promise<string> {
 	for (let attempt = 0; attempt < 5; attempt++) {
@@ -210,7 +270,6 @@ export async function getUniqueChatResponse(
 			apiUrl,
 			apiKey,
 			model,
-			systemPrompt,
 			messages,
 			silentFlag,
 		);
@@ -236,7 +295,6 @@ export async function getChatResponse(
 	apiUrl: string,
 	apiKey: string,
 	model: string,
-	systemPrompt: string,
 	messages: { role: string; content: string }[],
 	silentFlag = false,
 ): Promise<string> {
@@ -269,7 +327,6 @@ export async function getChatResponse(
 				model: model,
 				messages: messages,
 				max_tokens: 1024,
-				system: systemPrompt,
 			};
 			const response = await fetch(`${apiUrl}/v1/messages`, {
 				method: "POST",
@@ -292,7 +349,6 @@ export async function getChatResponse(
 			const termCmd = provider === "claude-cli" ? "claude" : "codex";
 			const termArg = provider === "claude-cli" ? "-p" : "exec";
 			try {
-				messages = [{ role: "system", content: systemPrompt }, ...messages];
 				const proc = Bun.spawn([termCmd, termArg, JSON.stringify(messages)], {
 					signal: abortController.signal,
 					stderr: "pipe",
@@ -313,7 +369,6 @@ export async function getChatResponse(
 					: `Failed to run command '${termCmd} ${termArg}'`;
 			}
 		} else {
-			messages = [{ role: "system", content: systemPrompt }, ...messages];
 			const requestBody = {
 				model: model,
 				messages: messages,
