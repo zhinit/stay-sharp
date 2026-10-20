@@ -17,46 +17,6 @@ function startSpinner(): Timer {
 	return intervalId;
 }
 
-export async function createSystemPrompt(
-	questionTypePromise: Promise<string>,
-	questionTopic: string,
-	questionDifficulty: string,
-): Promise<string> {
-	let systemPrompt = "";
-	const questionType = await questionTypePromise;
-	switch (questionType) {
-		case "w":
-			systemPrompt = `
-        Ask me to write some code.
-        It should be a coding question related to ${questionTopic}.
-        The level of difficulty should be ${questionDifficulty},
-        The answer to this should only be a few lines, 
-        or a one liner if appropriate.
-      `;
-			break;
-		case "r":
-			systemPrompt = `
-        Ask me a question where you will write show me a code snippet that has already been written.
-        It should be related to ${questionTopic}.
-        I will read through the code snippet and describe the output,
-        say if it will result in an error,
-        or spot any subtle bugs.
-        The level of difficulty should be ${questionDifficulty},
-      `;
-			break;
-		default:
-			systemPrompt = `
-        Ask me a conceptual question relating to ${questionTopic}
-        The level of difficulty should be ${questionDifficulty},
-      `;
-			break;
-	}
-	systemPrompt +=
-		"Please be concise. Shorter is better. Do not restate what we are doing.";
-
-	return systemPrompt;
-}
-
 export async function createQuestionPrompt(
 	questionTypePromise: Promise<string>,
 	questionTopic: string,
@@ -212,82 +172,6 @@ export async function classifyQuestionType(
 			? "Aborted"
 			: "Request failed without status code";
 	}
-}
-
-function getJaccardSimilarity(s1: string, s2: string): number {
-	if (s1.length === 0 && s2.length === 0) return 1;
-
-	const words1 = new Set<string>(
-		s1
-			.toLowerCase()
-			.trim()
-			.replace(/[`'"]/g, "")
-			.replace(/[.?!]/g, "")
-			.split(" "),
-	);
-	const words2 = new Set<string>(
-		s2
-			.toLowerCase()
-			.trim()
-			.replace(/[`'"]/g, "")
-			.replace(/[.?!]/g, "")
-			.split(" "),
-	);
-	let sharedWordCount = 0;
-	let distinctWordCount = words1.size;
-
-	words2.forEach((word) => {
-		if (words1.has(word)) sharedWordCount++;
-		else distinctWordCount++;
-	});
-
-	return sharedWordCount / distinctWordCount;
-}
-
-function isRepeatQuestion(
-	prevQuestions: string[],
-	candidate: string,
-	threshold: number,
-): boolean {
-	for (const question of prevQuestions) {
-		if (getJaccardSimilarity(question, candidate) > threshold) return true;
-	}
-	return false;
-}
-
-export async function getUniqueChatResponse(
-	provider: string,
-	apiUrl: string,
-	apiKey: string,
-	model: string,
-	messages: { role: string; content: string }[],
-	prevQuestions: string[],
-	silentFlag = false,
-): Promise<string> {
-	for (let attempt = 0; attempt < 5; attempt++) {
-		const candidate = await getChatResponse(
-			provider,
-			apiUrl,
-			apiKey,
-			model,
-			messages,
-			silentFlag,
-		);
-
-		if (!isRepeatQuestion(prevQuestions, candidate, 0.75)) {
-			return candidate;
-		}
-
-		messages.pop();
-		messages.push({
-			role: "User",
-			content: `That question was already asked. Please ask a different question from "${candidate}".\
-                Do not mention your mistake. Just ask a question that has not already been asked.`,
-		});
-	}
-
-	console.log("Sorry, the LLM was unable to come up with a new question.");
-	process.exit(1);
 }
 
 export async function getChatResponse(

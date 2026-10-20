@@ -10,7 +10,6 @@ import {
 	createGradingPrompt,
 	createQuestionPrompt,
 	getChatResponse,
-	getUniqueChatResponse,
 	withSpinner,
 } from "./input-chat.ts";
 
@@ -92,13 +91,12 @@ async function main() {
 		);
 		messages = [{ role: "user", content: questionPrompt }];
 
-		nextQuestionPromise = getUniqueChatResponse(
+		nextQuestionPromise = getChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
 			model,
 			messages,
-			prevQuestions,
 			true,
 		);
 
