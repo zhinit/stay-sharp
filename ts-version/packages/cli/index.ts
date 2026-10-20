@@ -7,7 +7,8 @@ import {
 
 import {
 	classifyQuestionType,
-	createSystemPrompt,
+	createGradingPrompt,
+	createQuestionPrompt,
 	getChatResponse,
 	withSpinner,
 } from "./input-chat.ts";
@@ -52,23 +53,26 @@ async function main() {
 	);
 	console.log("--------------------------------");
 
-	const systemPrompt = await createSystemPrompt(
+	let messages: { role: string; content: string }[] = [];
+	const prevQuestions: string[] = [];
+	let questionPrompt = await createQuestionPrompt(
 		questionTypePromise,
 		questionTopic,
 		questionDifficulty,
+		prevQuestions,
 	);
 
-	const messages: { role: string; content: string }[] = [];
-	messages.push({ role: "user", content: "Ask me a question." });
+	messages = [{ role: "user", content: questionPrompt }];
 
 	let question = await withSpinner(
-		getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
+		getChatResponse(provider, apiUrl, apiKey, model, messages),
 	);
 	while (question === "Aborted") {
 		question = await withSpinner(
-			getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
+			getChatResponse(provider, apiUrl, apiKey, model, messages),
 		);
 	}
+	prevQuestions.push(question);
 
 	let nextQuestionPromise: Promise<string> = Promise.resolve("");
 
@@ -77,53 +81,38 @@ async function main() {
 		question = firstLoopFlag
 			? question
 			: await withSpinner(nextQuestionPromise);
-		messages.push({ role: "assistant", content: question });
+		prevQuestions.push(question);
+
+		questionPrompt = await createQuestionPrompt(
+			questionTypePromise,
+			questionTopic,
+			questionDifficulty,
+			prevQuestions,
+		);
+		messages = [{ role: "user", content: questionPrompt }];
 
 		nextQuestionPromise = getChatResponse(
 			provider,
 			apiUrl,
 			apiKey,
 			model,
-			systemPrompt,
-			[
-				...messages,
-				{
-					role: "user",
-					content:
-						"Ask me another question. Do not repeat any previous questions.",
-				},
-			],
+			messages,
 			true,
 		);
 
-		const gradingPrompt =
-			"\
-      Please grade this and give feedback.\
-      If the user got the answer correct, tell them good job.\
-      If the user did not get the answer correct, \
-      tell them what they did right, what they did wrong, and what topics did they not understand.\
-      Respond in a friendly tone. Please be brief. Short consise responses are best.\
-    ";
-
 		let answer = await getUserInput(question);
-		messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
+		const gradingPrompt = createGradingPrompt(question, answer);
+		messages = [{ role: "user", content: gradingPrompt }];
 
 		let grade = await withSpinner(
-			getChatResponse(provider, apiUrl, apiKey, model, systemPrompt, messages),
+			getChatResponse(provider, apiUrl, apiKey, model, messages),
 		);
 		while (grade === "Aborted") {
 			messages.pop();
 			answer = await getUserInput(question, true, answer);
 			messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
 			grade = await withSpinner(
-				getChatResponse(
-					provider,
-					apiUrl,
-					apiKey,
-					model,
-					systemPrompt,
-					messages,
-				),
+				getChatResponse(provider, apiUrl, apiKey, model, messages),
 			);
 		}
 
@@ -138,31 +127,18 @@ async function main() {
 			if (followUp === "n") {
 				break;
 			}
+			followUp += ". DO NOT GIVE THE USER ANOTHER QUESTION YET!";
 			messages.push({ role: "user", content: followUp });
 
 			let followUpAnswer = await withSpinner(
-				getChatResponse(
-					provider,
-					apiUrl,
-					apiKey,
-					model,
-					systemPrompt,
-					messages,
-				),
+				getChatResponse(provider, apiUrl, apiKey, model, messages),
 			);
 			while (followUpAnswer === "Aborted") {
 				messages.pop();
 				followUp = await getUserInput(question, true, followUp);
 				messages.push({ role: "user", content: followUp });
 				followUpAnswer = await withSpinner(
-					getChatResponse(
-						provider,
-						apiUrl,
-						apiKey,
-						model,
-						systemPrompt,
-						messages,
-					),
+					getChatResponse(provider, apiUrl, apiKey, model, messages),
 				);
 			}
 			messages.push({ role: "assistant", content: followUpAnswer });

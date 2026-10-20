@@ -227,7 +227,6 @@ export async function runConfigWizard() {
 		config.apiUrl,
 		config.apiKey,
 		config.model,
-		"test system prompt",
 		[
 			{
 				role: "user",

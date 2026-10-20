@@ -17,16 +17,21 @@ function startSpinner(): Timer {
 	return intervalId;
 }
 
-export async function createSystemPrompt(
+export async function createQuestionPrompt(
 	questionTypePromise: Promise<string>,
 	questionTopic: string,
 	questionDifficulty: string,
+	prevQuestions: string[],
 ): Promise<string> {
-	let systemPrompt = "";
+	let questionPrompt = `
+    These are the previous questions that have been asked: ${prevQuestions.join(", ")}.
+    Previous questions have been provided only to identify material to avoid.
+  `;
+
 	const questionType = await questionTypePromise;
 	switch (questionType) {
 		case "w":
-			systemPrompt = `
+			questionPrompt += `
         Ask me to write some code.
         It should be a coding question related to ${questionTopic}.
         The level of difficulty should be ${questionDifficulty},
@@ -35,7 +40,7 @@ export async function createSystemPrompt(
       `;
 			break;
 		case "r":
-			systemPrompt = `
+			questionPrompt += `
         Ask me a question where you will write show me a code snippet that has already been written.
         It should be related to ${questionTopic}.
         I will read through the code snippet and describe the output,
@@ -45,16 +50,32 @@ export async function createSystemPrompt(
       `;
 			break;
 		default:
-			systemPrompt = `
+			questionPrompt += `
         Ask me a conceptual question relating to ${questionTopic}
         The level of difficulty should be ${questionDifficulty},
       `;
 			break;
 	}
-	systemPrompt +=
+
+	questionPrompt +=
 		"Please be concise. Shorter is better. Do not restate what we are doing.";
 
-	return systemPrompt;
+	return questionPrompt;
+}
+
+export function createGradingPrompt(question: string, answer: string): string {
+	return `\
+    The user was given this question: ${question}
+    This is the answer they gave: ${answer}
+    Please grade their response and give feedback.\
+    If the user got the answer correct, tell them good job.\
+    If the user did not get the answer correct, \
+    tell them what they did right, what they did wrong, and what topics did they not understand.\
+    Respond in a friendly tone. Please be brief. Short consise responses are best.\
+    If the user responded with idk or similar, tell them it's okay and give a short description of the answer.\
+    If the user responded with nonsense. Tell the user they are hallarious. Be patronizing about it.
+    DO NOT GIVE THE USER ANOTHER QUESTION. ONLY GRADE!
+    `;
 }
 
 export async function classifyQuestionType(
@@ -158,7 +179,6 @@ export async function getChatResponse(
 	apiUrl: string,
 	apiKey: string,
 	model: string,
-	systemPrompt: string,
 	messages: { role: string; content: string }[],
 	silentFlag = false,
 ): Promise<string> {
@@ -191,7 +211,6 @@ export async function getChatResponse(
 				model: model,
 				messages: messages,
 				max_tokens: 1024,
-				system: systemPrompt,
 			};
 			const response = await fetch(`${apiUrl}/v1/messages`, {
 				method: "POST",
@@ -214,7 +233,6 @@ export async function getChatResponse(
 			const termCmd = provider === "claude-cli" ? "claude" : "codex";
 			const termArg = provider === "claude-cli" ? "-p" : "exec";
 			try {
-				messages = [{ role: "system", content: systemPrompt }, ...messages];
 				const proc = Bun.spawn([termCmd, termArg, JSON.stringify(messages)], {
 					signal: abortController.signal,
 					stderr: "pipe",
@@ -235,7 +253,6 @@ export async function getChatResponse(
 					: `Failed to run command '${termCmd} ${termArg}'`;
 			}
 		} else {
-			messages = [{ role: "system", content: systemPrompt }, ...messages];
 			const requestBody = {
 				model: model,
 				messages: messages,
