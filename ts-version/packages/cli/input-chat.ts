@@ -243,6 +243,8 @@ export async function getChatResponse(
 					proc.exited,
 				]);
 
+				if (abortController.signal.aborted) return "Aborted";
+
 				if (exitCode !== 0)
 					return `'${termCmd} ${termArg}' failed during execution: ${response.trim()}`;
 

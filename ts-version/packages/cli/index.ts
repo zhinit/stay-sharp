@@ -101,16 +101,16 @@ async function main() {
 		);
 
 		let answer = await getUserInput(question);
-		const gradingPrompt = createGradingPrompt(question, answer);
+		let gradingPrompt = createGradingPrompt(question, answer);
 		messages = [{ role: "user", content: gradingPrompt }];
 
 		let grade = await withSpinner(
 			getChatResponse(provider, apiUrl, apiKey, model, messages),
 		);
 		while (grade === "Aborted") {
-			messages.pop();
 			answer = await getUserInput(question, true, answer);
-			messages.push({ role: "user", content: `${gradingPrompt} ${answer}` });
+			gradingPrompt = createGradingPrompt(question, answer);
+			messages = [{ role: "user", content: gradingPrompt }];
 			grade = await withSpinner(
 				getChatResponse(provider, apiUrl, apiKey, model, messages),
 			);
@@ -121,27 +121,39 @@ async function main() {
 		console.log("--------------------------------");
 
 		while (true) {
-			let followUp = await getUserInput(
-				"Do you have any follow up questions? If not, type 'n' to get the next question",
-			);
-			if (followUp === "n") {
-				break;
-			}
-			followUp += ". DO NOT GIVE THE USER ANOTHER QUESTION YET!";
-			messages.push({ role: "user", content: followUp });
+			const followUpUserPrompt =
+				"Do you have any follow up questions? If not, type 'n' to get the next question";
+
+			let followUp = await getUserInput(followUpUserPrompt);
+			if (followUp === "n") break;
+
+			messages.push({
+				role: "user",
+				content: `${followUp} DO NOT GIVE THE USER ANOTHER QUESTION YET!`,
+			});
 
 			let followUpAnswer = await withSpinner(
 				getChatResponse(provider, apiUrl, apiKey, model, messages),
 			);
+
 			while (followUpAnswer === "Aborted") {
 				messages.pop();
-				followUp = await getUserInput(question, true, followUp);
-				messages.push({ role: "user", content: followUp });
+
+				followUp = await getUserInput(followUpUserPrompt, true, followUp);
+				if (followUp === "n") break;
+
+				messages.push({
+					role: "user",
+					content: `${followUp} DO NOT GIVE THE USER ANOTHER QUESTION YET!`,
+				});
+
 				followUpAnswer = await withSpinner(
 					getChatResponse(provider, apiUrl, apiKey, model, messages),
 				);
 			}
+			if (followUp === "n") break;
 			messages.push({ role: "assistant", content: followUpAnswer });
+
 			console.log(followUpAnswer);
 			console.log("--------------------------------");
 		}
