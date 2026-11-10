@@ -123,9 +123,10 @@ export async function classifyQuestionType(
 			return payload.content[0]?.text ?? "No Response";
 		} else if (provider === "claude-cli" || provider === "codex-cli") {
 			const termCmd = provider === "claude-cli" ? "claude" : "codex";
-			const termArg = provider === "claude-cli" ? "-p" : "exec";
+			const termArgs =
+				provider === "claude-cli" ? ["-p"] : ["exec", "--skip-git-repo-check"];
 			try {
-				const proc = Bun.spawn([termCmd, termArg, message], {
+				const proc = Bun.spawn([termCmd, ...termArgs, message], {
 					stderr: "pipe",
 				});
 
@@ -140,8 +141,8 @@ export async function classifyQuestionType(
 				return response.trim()[0] ?? "c";
 			} catch (error) {
 				return error instanceof Error
-					? `Failed to run command '${termCmd} ${termArg}': ${error.message}`
-					: `Failed to run command '${termCmd} ${termArg}"`;
+					? `Failed to run command '${termCmd} ${termArgs.join(" ")}': ${error.message}`
+					: `Failed to run command '${termCmd} ${termArgs.join(" ")}"`;
 			}
 		} else {
 			const requestBody = {
@@ -231,12 +232,16 @@ export async function getChatResponse(
 			return payload.content[0]?.text ?? "No Response";
 		} else if (provider === "claude-cli" || provider === "codex-cli") {
 			const termCmd = provider === "claude-cli" ? "claude" : "codex";
-			const termArg = provider === "claude-cli" ? "-p" : "exec";
+			const termArgs =
+				provider === "claude-cli" ? ["-p"] : ["exec", "--skip-git-repo-check"];
 			try {
-				const proc = Bun.spawn([termCmd, termArg, JSON.stringify(messages)], {
-					signal: abortController.signal,
-					stderr: "pipe",
-				});
+				const proc = Bun.spawn(
+					[termCmd, ...termArgs, JSON.stringify(messages)],
+					{
+						signal: abortController.signal,
+						stderr: "pipe",
+					},
+				);
 
 				const [response, exitCode] = await Promise.all([
 					proc.stdout.text(),
@@ -246,13 +251,13 @@ export async function getChatResponse(
 				if (abortController.signal.aborted) return "Aborted";
 
 				if (exitCode !== 0)
-					return `'${termCmd} ${termArg}' failed during execution: ${response.trim()}`;
+					return `'${termCmd} ${termArgs.join(" ")}' failed during execution: ${response.trim()}`;
 
 				return response.trim();
 			} catch (error) {
 				return error instanceof Error
-					? `Failed to run command '${termCmd} ${termArg}': ${error.message}`
-					: `Failed to run command '${termCmd} ${termArg}'`;
+					? `Failed to run command '${termCmd} ${termArgs.join(" ")}': ${error.message}`
+					: `Failed to run command '${termCmd} ${termArgs.join(" ")}'`;
 			}
 		} else {
 			const requestBody = {
